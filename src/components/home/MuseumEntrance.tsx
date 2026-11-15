@@ -104,21 +104,35 @@ export function MuseumEntrance({ reduced }: Props) {
         </div>
         <p className={styles.hint}>აირჩიე კარი. კლავიატურით: Tab და Enter.</p>
       </div>
-      <div className={styles.choices}>
-        {doors.map((door) => (
-          <button
-            key={door.id}
-            type="button"
-            data-tone={door.id}
-            data-open={opening === door.id}
-            aria-label={`${door.title}. კარის გაღება`}
-            onClick={() => openDoor(door.id)}
-          >
-            <img src={asset(`door-${door.id}.jpg`)} alt="" />
-            <span>{door.title}</span>
-          </button>
-        ))}
-      </div>
+      {narrow && (
+        <div className={styles.court}>
+          <img className={styles.courtArt} src={asset('mobile-facade.jpg')} alt="" />
+          <h1 className={styles.welcome}>აირჩიე შენი ჯადოსნური სამყარო</h1>
+          {!reduced && (
+            <>
+              <span className={styles.bookGlow} aria-hidden="true" />
+              <span className={styles.sparks} aria-hidden="true">
+                {Array.from({ length: 7 }, (_, index) => <i key={index} />)}
+              </span>
+            </>
+          )}
+          <div className={styles.courtDoors}>
+            {doors.map((door) => (
+              <button
+                key={door.id}
+                type="button"
+                data-tone={door.id}
+                data-open={opening === door.id}
+                aria-label={`${door.title}. კარის გაღება`}
+                onClick={() => openDoor(door.id)}
+              >
+                <img src={asset(`door-${door.id}.jpg`)} alt="" />
+                <span>{door.title}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

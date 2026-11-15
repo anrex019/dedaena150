@@ -12,9 +12,10 @@ interface Props {
   empty: string;
   onFavorite: (id: string) => void;
   onSpeak: (text: string) => void;
+  onBack?: () => void;
 }
 
-export function WordBook({ word, saved, canSpeak, reduced, empty, onFavorite, onSpeak }: Props) {
+export function WordBook({ word, saved, canSpeak, reduced, empty, onFavorite, onSpeak, onBack }: Props) {
   if (!word) {
     return (
       <section className={styles.entry}>
@@ -28,6 +29,11 @@ export function WordBook({ word, saved, canSpeak, reduced, empty, onFavorite, on
 
   return (
     <section className={styles.entry}>
+      {onBack && (
+        <button type="button" className={styles.backList} onClick={onBack}>
+          სიაში დაბრუნება
+        </button>
+      )}
       <button
         type="button"
         className={saved && !reduced ? `${styles.ribbon} ${styles.ribbonOn}` : styles.ribbon}

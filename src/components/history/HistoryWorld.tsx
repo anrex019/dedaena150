@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, BookOpen, ChevronRight, Compass, Feather, Trophy } from 'lucide-react';
 import { quiz, sources, timeline } from '../../data/history';
 import { go } from '../../lib/route';
 import { sound } from '../../lib/sound';
@@ -17,6 +17,9 @@ const chapters: { id: ChapterId; title: string; hint: string; slot: string }[] =
   { id: 'time', title: 'დროის მოგზაურობა', hint: 'მთავარი მოვლენები ქრონოლოგიურად', slot: styles.slotTime },
   { id: 'quiz', title: 'შეამოწმე შენი ცოდნა', hint: 'ვიქტორინა და სასწავლო სიგელი', slot: styles.slotQuiz },
 ];
+
+const chapterMarks = ['I', 'II', 'III', 'IV'] as const;
+const chapterIcons = [BookOpen, Feather, Compass, Trophy] as const;
 
 function asset(file: string) {
   return `${import.meta.env.BASE_URL}art/history/${file}`;
@@ -66,18 +69,6 @@ export function HistoryWorld({ reduced }: Props) {
       data-reduced={reduced ? 'true' : 'false'}
       data-reading={chapter ? 'true' : 'false'}
     >
-      <button
-        type="button"
-        className={styles.back}
-        onClick={() => {
-          sound.play('click');
-          go('home');
-        }}
-      >
-        <ArrowLeft size={18} />
-        ოთხ კართან დაბრუნება
-      </button>
-
       <div className={styles.stage}>
         <img className={styles.scene} src={asset('library.jpg')} alt="" />
         {!reduced && Array.from({ length: 10 }, (_, index) => (
@@ -134,28 +125,49 @@ export function HistoryWorld({ reduced }: Props) {
       </div>
 
       {narrow && (
-        <div className={styles.pocket}>
-          <img className={styles.atmosphere} src={asset('library.jpg')} alt="" />
-          <article className={styles.leaf}>
-            <p className={styles.leafKicker}>პირველი კარი</p>
-            <h1>იაკობ გოგებაშვილის სამყარო</h1>
-            <div className={styles.leafIntro}>
-              <img
-                src={asset('portrait.jpg')}
-                alt="იაკობ გოგებაშვილის ისტორიული ფოტო. ავტორი ალექსანდრე როინაშვილი, თბილისი, 1899 წლამდე."
-              />
-              <p>პედაგოგი, რომელმაც ქართული წერა-კითხვა ბავშვის მშობლიურ ენას დაუკავშირა.</p>
+        <>
+          <img className={styles.atmosphere} src={asset('library-mobile.jpg')} alt="" />
+          {!reduced && (
+            <span className={styles.embers} aria-hidden="true">
+              {Array.from({ length: 6 }, (_, index) => <i key={index} />)}
+            </span>
+          )}
+          <div className={styles.pocket}>
+            <header className={styles.folioHead}>
+              <p>პირველი კარი</p>
+              <h1>იაკობ გოგებაშვილის სამყარო</h1>
+            </header>
+            <div className={styles.tome}>
+              <img className={styles.tomeArt} src={asset('open-book.png')} alt="" />
+              <div className={styles.spread}>
+                <figure className={styles.frame}>
+                  <img
+                    src={asset('portrait.jpg')}
+                    alt="იაკობ გოგებაშვილის ისტორიული ფოტო. ავტორი ალექსანდრე როინაშვილი, თბილისი, 1899 წლამდე."
+                  />
+                  <figcaption>
+                    <strong>იაკობ გოგებაშვილი</strong>
+                    <span>1840–1912</span>
+                  </figcaption>
+                </figure>
+                <p className={styles.lede}>პედაგოგი, რომელმაც ქართული წერა-კითხვა ბავშვის მშობლიურ ენას დაუკავშირა.</p>
+              </div>
             </div>
             <nav className={styles.toc} aria-label="თავები">
-              {chapters.map((item, index) => (
-                <button key={item.id} type="button" onClick={() => openChapter(item.id)}>
-                  <span>{['I', 'II', 'III', 'IV'][index]}</span>
-                  <strong>{item.title}</strong>
-                </button>
-              ))}
+              {chapters.map((item, index) => {
+                const Icon = chapterIcons[index];
+                return (
+                  <button key={item.id} type="button" onClick={() => openChapter(item.id)}>
+                    <img src={asset('parchment-bar.jpg')} alt="" />
+                    <span>{chapterMarks[index]}</span>
+                    <strong>{item.title}</strong>
+                    <Icon size={22} strokeWidth={1.6} aria-hidden="true" />
+                  </button>
+                );
+              })}
             </nav>
-          </article>
-        </div>
+          </div>
+        </>
       )}
 
       {chapter && (
@@ -167,7 +179,19 @@ export function HistoryWorld({ reduced }: Props) {
         />
       )}
 
-      <div className={styles.sourcesDock}>
+      <div className={styles.floor}>
+        <button
+          type="button"
+          className={styles.back}
+          onClick={() => {
+            sound.play('click');
+            go('home');
+          }}
+        >
+          <ArrowLeft size={18} />
+          ოთხ კართან დაბრუნება
+        </button>
+        <div className={styles.sourcesDock}>
         <button
           type="button"
           className={styles.sourcesToggle}
@@ -177,6 +201,7 @@ export function HistoryWorld({ reduced }: Props) {
             setSourcesOpen((open) => !open);
           }}
         >
+          <BookOpen className={styles.sourcesMark} size={18} aria-hidden="true" />
           წყაროები
         </button>
         {sourcesOpen && (
@@ -189,6 +214,7 @@ export function HistoryWorld({ reduced }: Props) {
             ))}
           </ul>
         )}
+        </div>
       </div>
     </section>
   );

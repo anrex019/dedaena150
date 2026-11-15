@@ -13,6 +13,19 @@ import styles from './GameWorld.module.scss';
 const GameStage = lazy(() => import('../../game/GameStage'));
 
 const covers = ['bg-forest.jpg', 'bg-cave.jpg', 'bg-temple.jpg'];
+const marks = ['I', 'II', 'III'];
+
+function useMedia(query: string) {
+  return useSyncExternalStore(
+    (notify) => {
+      const media = window.matchMedia(query);
+      media.addEventListener('change', notify);
+      return () => media.removeEventListener('change', notify);
+    },
+    () => window.matchMedia(query).matches,
+    () => false,
+  );
+}
 
 interface Props { reduced: boolean; }
 
@@ -51,6 +64,8 @@ function Stars({ count }: { count: number }) {
 
 export function GameWorld({ reduced }: Props) {
   const store = useStore();
+  const narrow = useMedia('(max-width: 860px)');
+  const portrait = useMedia('(max-width: 860px) and (orientation: portrait)');
   const bridgeRef = useRef<GameBridge | null>(null);
   if (!bridgeRef.current) bridgeRef.current = new GameBridge();
   const bridge = bridgeRef.current;
@@ -80,10 +95,61 @@ export function GameWorld({ reduced }: Props) {
     setMode('select');
   }
 
-  function hold(partial: { left?: boolean; right?: boolean; jump?: boolean }, event: PointerEvent<HTMLButtonElement>) {
+  function hold(key: 'left' | 'right' | 'jump', event: PointerEvent<HTMLButtonElement>) {
     event.preventDefault();
-    if (event.type === 'pointerdown') event.currentTarget.setPointerCapture(event.pointerId);
-    bridge.setTouch(partial);
+    const down = event.type === 'pointerdown';
+    if (down) {
+      try { event.currentTarget.setPointerCapture(event.pointerId); } catch { /* pointer already gone */ }
+    }
+    event.currentTarget.dataset.down = down ? 'true' : 'false';
+    bridge.setTouch({ [key]: down });
+  }
+
+  if (!playing && narrow) {
+    return (
+      <section className={styles.gate}>
+        <img className={styles.gateArt} src={`${import.meta.env.BASE_URL}art/game/library-game.jpg`} alt="" />
+        <button
+          type="button"
+          className={styles.gateBack}
+          onClick={() => {
+            sound.play('click');
+            go('home');
+          }}
+        >
+          <ArrowLeft size={18} />
+          ოთხ კართან დაბრუნება
+        </button>
+        <header className={styles.gateTitle}>
+          <p>მესამე კარი · თამაში</p>
+          <h1>ითამაშე ქართულად</h1>
+          <p>აირჩიე დონე და დაიწყე მოგზაურობა ქართულ სიტყვებში.</p>
+        </header>
+        <div className={styles.portals}>
+          {levels.map((level, index) => {
+            const locked = index > store.levelsCleared;
+            const cleared = index < store.levelsCleared;
+            const status = locked ? 'ჩაკეტილია' : cleared ? 'გავლილია' : 'შეგიძლია დაიწყო';
+            const best = store.best[level.id];
+            return (
+              <article key={level.id} className={styles.portal} data-locked={locked || undefined}>
+                <img src={`${import.meta.env.BASE_URL}art/game/${covers[index]}`} alt="" />
+                <div>
+                  <p className={styles.badge}>{marks[index]} დონე · {level.difficulty}</p>
+                  <h2>{level.title}</h2>
+                  <p>{level.summary}</p>
+                  <p className={styles.status}>{status}{best ? ` · საუკეთესო ${best}` : ''}</p>
+                  <button type="button" disabled={locked} onClick={() => begin(index)}>
+                    <Play size={16} aria-hidden="true" />
+                    {locked ? 'ჯერ ჩაკეტილია' : cleared ? 'თავიდან თამაში' : 'დაწყება'}
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    );
   }
 
   if (!playing) {
@@ -128,7 +194,7 @@ export function GameWorld({ reduced }: Props) {
     <div className={styles.stage}>
       <div className={styles.viewport}>
         <Suspense fallback={<p className={styles.loading}>თამაში იტვირთება…</p>}>
-          <GameStage key={levelIndex} levelIndex={levelIndex} bridge={bridge} reduced={reduced} />
+          <GameStage key={levelIndex} levelIndex={levelIndex} bridge={bridge} reduced={reduced} portrait={portrait} />
         </Suspense>
         <p className={styles.orient}>ჰორიზონტალური ეკრანი თამაშს აფართოებს.</p>
         <div className={styles.hud}>
@@ -214,14 +280,15 @@ export function GameWorld({ reduced }: Props) {
           )}
         </div>
         <div className={styles.touch}>
-          <button type="button" aria-label="მარცხნივ" onPointerDown={(event) => hold({ left: true }, event)} onPointerUp={(event) => hold({ left: false }, event)} onPointerCancel={(event) => hold({ left: false }, event)} onPointerLeave={(event) => hold({ left: false }, event)}>
+          <button type="button" aria-label="მარცხნივ" onPointerDown={(event) => hold('left', event)} onPointerUp={(event) => hold('left', event)} onPointerCancel={(event) => hold('left', event)} onLostPointerCapture={(event) => hold('left', event)}>
             <ChevronLeft />
           </button>
-          <button type="button" aria-label="მარჯვნივ" onPointerDown={(event) => hold({ right: true }, event)} onPointerUp={(event) => hold({ right: false }, event)} onPointerCancel={(event) => hold({ right: false }, event)} onPointerLeave={(event) => hold({ right: false }, event)}>
+          <button type="button" aria-label="მარჯვნივ" onPointerDown={(event) => hold('right', event)} onPointerUp={(event) => hold('right', event)} onPointerCancel={(event) => hold('right', event)} onLostPointerCapture={(event) => hold('right', event)}>
             <ChevronRight />
           </button>
-          <button type="button" aria-label="ხტომა" onPointerDown={(event) => hold({ jump: true }, event)} onPointerUp={(event) => hold({ jump: false }, event)} onPointerCancel={(event) => hold({ jump: false }, event)} onPointerLeave={(event) => hold({ jump: false }, event)}>
-            <ArrowUp /> ხტომა
+          <button type="button" aria-label="ხტომა" onPointerDown={(event) => hold('jump', event)} onPointerUp={(event) => hold('jump', event)} onPointerCancel={(event) => hold('jump', event)} onLostPointerCapture={(event) => hold('jump', event)}>
+            <ArrowUp />
+            <span>ხტომა</span>
           </button>
         </div>
       </div>

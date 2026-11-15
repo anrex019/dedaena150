@@ -277,7 +277,10 @@ export class LevelScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.solids);
     this.movers.forEach((mover) => this.physics.add.collider(this.player, mover.sprite));
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
-    this.cameras.main.setDeadzone(140, 80);
+    const viewW = this.cameras.main.width;
+    const narrowCam = viewW < 800;
+    this.cameras.main.setDeadzone(narrowCam ? 64 : 140, narrowCam ? 36 : 80);
+    this.cameras.main.setFollowOffset(narrowCam ? -Math.round(viewW * 0.16) : 0, 0);
 
     const keyboard = this.input.keyboard;
     if (keyboard) {

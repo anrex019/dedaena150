@@ -22,6 +22,12 @@
   user-select: none;
 }
 
+.sky,
+.ledePhone,
+.bookArt { display: none; }
+
+.flow { display: contents; }
+
 .skyLetter,
 .spark {
   position: absolute;
@@ -645,25 +651,218 @@
   .formLeaf { transform: none; }
 }
 
-@media (max-width: 700px) {
-  .viewport { padding: 72px 12px 18px; }
+@media (max-width: 860px) {
+  .viewport {
+    display: block;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding:
+      max(78px, calc(64px + env(safe-area-inset-top)))
+      max(12px, env(safe-area-inset-right))
+      0
+      max(12px, env(safe-area-inset-left));
+    background: #12081f;
+  }
+
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-bottom: max(22px, env(safe-area-inset-bottom));
+  }
+
+  .scene { display: none; }
+
+  .sky {
+    display: block;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center 18%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .skyLetter,
+  .spark { display: none; }
+
+  .back { min-height: 44px; }
+
+  .title { width: 100%; }
+  .lede { display: none; }
+  .ledePhone {
+    display: block;
+    max-width: 22em;
+    margin: 0 auto;
+    color: #ffe7c2;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .title h1 {
+    margin: 4px 0 6px;
+    font-size: clamp(26px, 7.2vw, 36px);
+    color: #f8e7a8;
+  }
+
+  .stage {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+  }
+
+  .back,
+  .title,
+  .book,
+  .portalWrap,
+  .finale { flex: none; }
+
   .portalWrap { order: -1; }
+  .portal {
+    width: min(250px, 64vw);
+    --orbit: 92px;
+  }
+  .year { font-size: clamp(40px, 11vw, 54px); }
+
   .book {
     order: 1;
-    grid-template-columns: 1fr;
-    min-height: 0;
+    display: flex;
+    flex-direction: column;
     height: auto;
+    min-height: 0;
+    padding: 10px 10px 14px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #6a3c22, #3a2214);
+    box-shadow:
+      0 0 0 3px #e2c48a,
+      0 16px 28px rgba(10, 4, 20, 0.45);
   }
-  .leaf { overflow: visible; }
-  .spine { display: none; }
-  .finale { display: flex; flex-direction: column; }
-  .missions { order: 1; grid-template-columns: 1fr; }
-  .banner { order: 2; margin: 10px 0 0; }
+  .book::before,
+  .book::after { display: none; }
+
+  .bookArt {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0 0 8px;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .leaf {
+    overflow: visible;
+    gap: 10px;
+    padding: 16px 16px 14px;
+    border-radius: 12px;
+    transform: none;
+    box-shadow: inset 0 0 0 1px rgba(184, 137, 62, 0.45), inset 0 0 24px rgba(255, 214, 150, 0.28);
+  }
+  .introLeaf,
+  .formLeaf { padding-left: 16px; padding-right: 16px; }
+
+  .spine {
+    position: relative;
+    left: auto;
+    top: auto;
+    bottom: auto;
+    width: auto;
+    height: 14px;
+    margin: 8px 18px;
+    transform: none;
+  }
+
+  .leaf h2 { font-size: 22px; }
+  .leaf p { font-size: 15px; line-height: 1.6; }
+  .leaf input,
+  .leaf textarea { font-size: 16px; min-height: 44px; }
+  .leaf textarea { min-height: 96px; }
+  .send { min-height: 48px; font-size: 16px; }
+
+  .finale {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+  .missions {
+    order: 1;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .missions li:last-child { grid-column: 1 / -1; }
+  .missions li:last-child .mission { max-width: 280px; margin-inline: auto; }
+
+  .mission {
+    min-height: 112px;
+    gap: 6px;
+    padding: 12px 8px;
+    border: 2px solid #e2c48a;
+    border-radius: 18px;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(255, 214, 140, 0.22), transparent 58%),
+      linear-gradient(180deg, rgba(62, 32, 96, 0.92), rgba(28, 14, 48, 0.94));
+    box-shadow: 0 0 14px rgba(170, 110, 255, 0.28), inset 0 0 0 1px rgba(255, 226, 170, 0.2);
+  }
+  .mission svg {
+    width: 36px;
+    height: 36px;
+    padding: 7px;
+    border-radius: 50%;
+    color: #6e2e28;
+    background: radial-gradient(circle at 40% 30%, #fff8ea, #e2c48a);
+    box-shadow: 0 0 10px rgba(255, 196, 90, 0.45);
+  }
+  .mission strong { font-size: 14px; }
+  .mission:active { transform: scale(0.98); }
+  .mission[data-done='true'] {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(255, 214, 140, 0.38), transparent 60%),
+      linear-gradient(180deg, rgba(92, 58, 18, 0.94), rgba(48, 28, 12, 0.94));
+    box-shadow: 0 0 16px rgba(255, 196, 90, 0.45);
+  }
+  .mission[data-open='true'] {
+    box-shadow: 0 0 0 2px #fff1c4, 0 0 18px rgba(255, 214, 140, 0.55);
+  }
+
+  .banner {
+    order: 2;
+    margin: 4px 0 0;
+    padding: 14px 16px;
+    color: #6e2e28;
+    font-size: clamp(16px, 4.4vw, 20px);
+    background:
+      radial-gradient(circle at 50% 0%, #fffaf0, #f3dfb4 72%);
+    border: 3px solid #e2c48a;
+    border-radius: 12px 12px 28px 12px;
+    box-shadow: 0 0 20px rgba(255, 196, 90, 0.4);
+    text-shadow: none;
+  }
   .caveat { order: 3; }
-  .mission { min-height: 72px; }
-  .portal { width: min(280px, 86vw); --orbit: 88px; }
-  .leaf input, .leaf textarea { font-size: 16px; }
-  .title h1 { margin: 6px 0 8px; font-size: clamp(24px, 7vw, 32px); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .portal::before,
+    .ring,
+    .ticks,
+    .orbit,
+    .mote { animation: none; }
+  }
+}
+
+@media (max-width: 360px) {
+  .missions { grid-template-columns: 1fr; }
+  .missions li:last-child { grid-column: auto; }
+  .missions li:last-child .mission { max-width: none; }
   .celebrateLetter { --orbit: 120px; }
 }
 

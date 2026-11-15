@@ -214,7 +214,9 @@ export function FutureWorld({ reduced }: Props) {
 
   return (
     <section className={styles.viewport} data-phase={phase}>
+      <div className={styles.flow}>
       <img className={styles.scene} src={`${import.meta.env.BASE_URL}art/future/night.jpg`} alt="" />
+      <img className={styles.sky} src={`${import.meta.env.BASE_URL}art/future/night-mobile.jpg`} alt="" />
       {!reduced && skyLetters.map((mark, index) => (
         <span
           key={mark}
@@ -251,10 +253,12 @@ export function FutureWorld({ reduced }: Props) {
         <p>მეოთხე კარი · მომავალი</p>
         <h1>ქართული ენა მომავალში</h1>
         <p className={styles.lede}>რას ვეტყოდით ბავშვებს, რომლებიც 2126 წელს ქართულად ისაუბრებენ?</p>
+        <p className={styles.ledePhone}>რას ეტყოდით ბავშვებს, რომლებიც 2126 წელს ქართულად ისაუბრებენ?</p>
       </header>
 
       <div className={styles.stage}>
         <article className={styles.book} data-glow={flying ? 'true' : 'false'}>
+          <img className={styles.bookArt} src={`${import.meta.env.BASE_URL}art/future/open-book.png`} alt="" />
           <div className={`${styles.leaf} ${styles.introLeaf}`}>
             <p className={styles.kicker}>მოგზაურობა მომავალში</p>
             <h2>წერილი 2126 წელს</h2>
@@ -464,6 +468,7 @@ export function FutureWorld({ reduced }: Props) {
         </div>
       )}
 
+      </div>
       <section className={styles.certificate} aria-hidden="true">
         <p>სასწავლო სიგელი</p>
         <h2>{name.trim() || 'მუზეუმის სტუმარი'}</h2>

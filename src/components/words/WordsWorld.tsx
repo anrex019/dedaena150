@@ -86,6 +86,12 @@ export function WordsWorld({ reduced }: Props) {
   return (
     <section className={styles.viewport}>
       <img className={styles.scene} src={`${import.meta.env.BASE_URL}art/words/garden.jpg`} alt="" />
+      {narrow && (
+        <>
+          <img className={styles.grove} src={`${import.meta.env.BASE_URL}art/words/library-words.jpg`} alt="" />
+          {!reduced && <span className={styles.lantern} aria-hidden="true" />}
+        </>
+      )}
       {!reduced && Array.from({ length: 9 }, (_, index) => (
         <span
           key={index}
@@ -113,7 +119,8 @@ export function WordsWorld({ reduced }: Props) {
         <header className={styles.title}>
           <p>მეორე კარი · სიტყვები</p>
           <h1>ქართული სიტყვების საგანძური</h1>
-          <p>მოძებნე სიტყვა, წაიკითხე განმარტება და შეინახე რჩეული.</p>
+          <p className={styles.ledeDesk}>მოძებნე სიტყვა, წაიკითხე განმარტება და შეინახე რჩეული.</p>
+          <p className={styles.ledePhone}>მოძებნე სიტყვა, წაიკითხე განმარტება და შეინახე რჩეულად.</p>
           <p className={styles.progressText}>აღმოჩენილია {found}/{total} სიტყვა · {percent}%</p>
           <div
             className={styles.meter}
@@ -147,6 +154,9 @@ export function WordsWorld({ reduced }: Props) {
           </div>
         )}
         <div className={styles.book} data-sheet={narrow ? sheet : 'both'}>
+          {narrow && (
+            <img className={styles.bookArt} src={`${import.meta.env.BASE_URL}art/words/dictionary-book.png`} alt="" />
+          )}
           <WordList
             words={visible}
             selectedId={active?.id ?? null}
@@ -164,6 +174,7 @@ export function WordsWorld({ reduced }: Props) {
             empty={empty}
             onFavorite={favorite}
             onSpeak={(text) => { speakGeorgian(text); }}
+            onBack={narrow ? () => setSheet('list') : undefined}
           />
         </div>
       </div>
