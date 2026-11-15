@@ -438,6 +438,7 @@ export class LevelScene extends Phaser.Scene {
       if (checkpoint.used) continue;
       if (Math.abs(this.player.x - checkpoint.x) < 46 && Math.abs(this.player.y - checkpoint.y) < 48) {
         checkpoint.used = true;
+        debugGame('checkpoint:activated', { x: checkpoint.x, y: checkpoint.y, playerX: this.player.x, playerY: this.player.y, cameraX: this.cameras.main.scrollX, collected: this.collected });
         this.spawn = { x: checkpoint.x, y: checkpoint.y };
         this.tweens.killTweensOf(checkpoint.sprite);
         checkpoint.sprite.setY(checkpoint.y - 4);
