@@ -205,7 +205,7 @@
 
 .viewport[data-reading='true'] .back,
 .viewport[data-reading='true'] .sourcesDock,
-.viewport[data-reading='true'] .mobileNav {
+.viewport[data-reading='true'] .pocket {
   visibility: hidden;
   pointer-events: none;
 }
@@ -383,6 +383,8 @@
   font-size: 15px;
 }
 
+.sheetMark { display: none; }
+
 .options { display: grid; gap: 8px; }
 .options button {
   text-align: left;
@@ -502,56 +504,189 @@
 
 @media (max-width: 860px) {
   .viewport {
-    display: block;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr) auto;
+    align-items: stretch;
+    justify-items: stretch;
+    height: 100dvh;
+    min-height: 100dvh;
     overflow: auto;
-    padding-bottom: 84px;
+    padding:
+      max(78px, calc(64px + env(safe-area-inset-top)))
+      max(14px, env(safe-area-inset-right))
+      max(16px, env(safe-area-inset-bottom))
+      max(14px, env(safe-area-inset-left));
+    gap: 12px 10px;
   }
 
-  .viewport[data-reading='true'] { overflow: hidden; padding-bottom: 0; }
+  .viewport[data-reading='true'] {
+    display: block;
+    height: 100dvh;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .viewport[data-reading='true'] .back,
+  .viewport[data-reading='true'] .sourcesDock,
+  .viewport[data-reading='true'] .pocket {
+    display: none;
+  }
+
+  .stage, .mobileNav { display: none; }
+
+  .pocket {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    width: min(520px, 100%);
+    margin: 0 auto;
+    min-height: 0;
+  }
+
+  .atmosphere {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .leaf {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    margin: 0;
+    min-height: 0;
+    overflow: auto;
+    padding: 22px 18px 14px;
+    border-radius: 8px 18px 16px 8px;
+    background:
+      radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.5), transparent 32%),
+      linear-gradient(180deg, #fbf6ea 0%, #f7edd8 48%, #f1e0be 100%);
+    box-shadow:
+      0 0 0 8px #6b3c22,
+      0 0 0 12px #e2c48a,
+      0 18px 40px rgba(0, 0, 0, 0.35);
+    color: #3a2618;
+  }
+
+  .leafKicker {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8a5a32;
+  }
+
+  .leaf h1 {
+    margin: 0;
+    font-size: clamp(26px, 7vw, 36px);
+    line-height: 1.2;
+    color: #6e2e28;
+  }
+
+  .leafIntro {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+  }
+
+  .leafIntro img {
+    width: 92px;
+    height: 118px;
+    object-fit: cover;
+    object-position: center 14%;
+    border: 3px solid #e2c48a;
+    box-shadow: 0 0 0 1px #6b3c22;
+  }
+
+  .leafIntro p {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .toc {
+    display: flex;
+    flex-direction: column;
+    margin-top: 8px;
+  }
+
+  .toc button {
+    display: grid;
+    grid-template-columns: 2.2em minmax(0, 1fr);
+    gap: 8px;
+    align-items: center;
+    min-height: 48px;
+    padding: 8px 2px;
+    border: 0;
+    border-bottom: 1px solid rgba(138, 90, 40, 0.28);
+    background: transparent;
+    color: #5a3018;
+    text-align: left;
+    font-family: "Noto Serif Georgian", serif;
+    font-size: clamp(16px, 4.4vw, 19px);
+    line-height: 1.3;
+  }
+
+  .toc span {
+    color: #8a5a32;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .back,
+  .sourcesDock {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    z-index: 2;
+    width: auto;
+    margin: 0;
+  }
 
   .back {
-    top: auto;
-    bottom: max(16px, env(safe-area-inset-bottom));
-    left: max(12px, env(safe-area-inset-left));
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: start;
+    min-height: 44px;
   }
 
-  .sourcesDock { bottom: 16px; }
-
-  .stage { width: min(100%, 720px); margin: 0 auto; }
-  .index, .portrait { pointer-events: none; }
-
-  .title h1 { font-size: 22px; }
-  .chapter span { display: none; }
-
-  .mobileNav { display: grid; }
-
-  .mobileNav {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    padding: 12px;
+  .sourcesDock {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    align-self: end;
   }
 
-  .mobileNav button {
-    display: grid;
-    gap: 4px;
-    min-height: 52px;
-    text-align: left;
-    padding: 12px 14px;
-    border-radius: 18px;
-    background: #6e4230;
-    color: #fff6e4;
-  }
-
-  .mobileNav span { font-size: 12px; color: #f0d7a4; font-weight: 400; }
+  .sourcesToggle { min-height: 44px; }
 
   .reader {
+    z-index: 20;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     overflow: hidden;
-    padding: 12px 12px 10px;
     gap: 10px;
-    background: rgba(10, 6, 4, 0.78);
+    padding:
+      max(74px, calc(60px + env(safe-area-inset-top)))
+      12px
+      max(12px, env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, rgba(12, 8, 8, 0.28), rgba(12, 8, 8, 0.62));
   }
 
   .book {
@@ -560,26 +695,47 @@
     height: auto;
     min-height: 0;
     overflow: auto;
+    border-radius: 8px 16px 14px 8px;
   }
 
   .pages {
     height: auto;
+    min-height: 100%;
     grid-template-columns: 1fr;
     overflow: visible;
+    background: linear-gradient(180deg, #fbf6ea 0%, #f7edd8 48%, #f1e0be 100%);
   }
 
-  .page { padding: 22px 18px 12px; }
+  .page { padding: 20px 16px 8px; }
   .page + .page {
     box-shadow: none;
     border-top: 1px solid rgba(120, 80, 40, 0.22);
   }
   .pageBody { overflow: visible; }
+  .page h2 { margin-bottom: 10px; font-size: clamp(22px, 5.6vw, 30px); }
+  .page p,
+  .yearList span { margin-bottom: 10px; font-size: 17px; line-height: 1.65; }
   .plate { flex: none; }
-  .plate img { height: 240px; flex: none; }
+  .plate img { height: auto; max-height: 36dvh; flex: none; object-fit: contain; }
 
-  .navRow { flex-wrap: wrap; justify-content: center; }
-  .navRow button, .options button, .again { min-height: 44px; }
-  .pageMark { flex: 1 1 100%; }
+  .spreadMark { display: none; }
+  .sheetMark { display: inline; }
+
+  .navRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .pageMark { grid-column: 1 / -1; order: -1; }
+  .navRow button,
+  .options button,
+  .again { min-height: 44px; }
+  .navRow button:not(.sourcesToggle),
+  .again {
+    background: linear-gradient(#fff8ea, #f0d7a8);
+    color: #5a3018;
+    border: 1px solid #c6a15a;
+  }
   .readerNav .sources { max-height: 150px; }
 }
 

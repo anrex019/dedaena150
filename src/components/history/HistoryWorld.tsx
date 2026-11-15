@@ -134,14 +134,28 @@ export function HistoryWorld({ reduced }: Props) {
       </div>
 
       {narrow && (
-        <nav className={styles.mobileNav} aria-label="თავები">
-          {chapters.map((item) => (
-            <button key={item.id} type="button" onClick={() => openChapter(item.id)} aria-current={chapter === item.id ? 'page' : undefined}>
-              <strong>{item.title}</strong>
-              <span>{item.hint}</span>
-            </button>
-          ))}
-        </nav>
+        <div className={styles.pocket}>
+          <img className={styles.atmosphere} src={asset('library.jpg')} alt="" />
+          <article className={styles.leaf}>
+            <p className={styles.leafKicker}>პირველი კარი</p>
+            <h1>იაკობ გოგებაშვილის სამყარო</h1>
+            <div className={styles.leafIntro}>
+              <img
+                src={asset('portrait.jpg')}
+                alt="იაკობ გოგებაშვილის ისტორიული ფოტო. ავტორი ალექსანდრე როინაშვილი, თბილისი, 1899 წლამდე."
+              />
+              <p>პედაგოგი, რომელმაც ქართული წერა-კითხვა ბავშვის მშობლიურ ენას დაუკავშირა.</p>
+            </div>
+            <nav className={styles.toc} aria-label="თავები">
+              {chapters.map((item, index) => (
+                <button key={item.id} type="button" onClick={() => openChapter(item.id)}>
+                  <span>{['I', 'II', 'III', 'IV'][index]}</span>
+                  <strong>{item.title}</strong>
+                </button>
+              ))}
+            </nav>
+          </article>
+        </div>
       )}
 
       {chapter && (
@@ -554,7 +568,8 @@ function BookReader({
           </button>
           <button type="button" onClick={onClose}>თავფურცელი</button>
           <p className={styles.pageMark} aria-live="polite">
-            გვერდი {leftNo}–{rightNo} / {pageTotal}
+            <span className={styles.spreadMark}>გვერდი {leftNo}–{rightNo} / {pageTotal}</span>
+            <span className={styles.sheetMark}>ფურცელი {page + 1} / {total}</span>
             {waiting ? ' · ჯერ პასუხი აირჩიე' : ''}
           </p>
           <button
