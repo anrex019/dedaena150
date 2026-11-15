@@ -94,6 +94,7 @@ export function GameWorld({ reduced }: Props) {
         title="ითამაშე ქართულად"
         lede="აირჩიე დონე და დაიწყე მოგზაურობა ქართულ სიტყვებში."
       >
+        <p className={styles.orient}>ვერტიკალურ ეკრანზეც ითამაშებ. ჰორიზონტალურზე სურათი უფრო ფართოა.</p>
         <div className={styles.pick}>
           {levels.map((level, index) => {
             const locked = index > store.levelsCleared;
@@ -129,6 +130,7 @@ export function GameWorld({ reduced }: Props) {
         <Suspense fallback={<p className={styles.loading}>თამაში იტვირთება…</p>}>
           <GameStage key={levelIndex} levelIndex={levelIndex} bridge={bridge} reduced={reduced} />
         </Suspense>
+        <p className={styles.orient}>ჰორიზონტალური ეკრანი თამაშს აფართოებს.</p>
         <div className={styles.hud}>
           <div className={styles.top}>
             <span className={styles.lives} aria-label={`სიცოცხლე ${hud.lives} 3-დან`}>

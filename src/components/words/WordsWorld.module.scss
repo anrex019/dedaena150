@@ -650,7 +650,7 @@
   .desk { grid-template-columns: 172px minmax(0, 1fr); }
   .mast { flex-direction: column; align-items: center; gap: 8px; }
   .back { position: static; }
-  .title { width: min(640px, 100%); }
+  .title { width: min(640px, 100%); padding-inline: 8px; }
   .title h1 { font-size: 24px; }
 }
 
@@ -701,8 +701,8 @@
 
   .book {
     grid-template-columns: 1fr;
-    height: 70dvh;
-    min-height: 420px;
+    height: min(70dvh, 640px);
+    min-height: min(420px, 58dvh);
   }
 
   .book[data-sheet='list'] .entry,
@@ -713,7 +713,8 @@
     height: 140px;
   }
 
-  .quest { width: auto; align-self: flex-start; }
+  .quest { width: auto; align-self: flex-start; min-height: 48px; }
+  .cat { min-height: 44px; }
 }
 
 :root[data-motion='reduce'] .firefly { animation: none; }

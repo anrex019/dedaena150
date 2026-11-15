@@ -511,13 +511,14 @@
 
   .back {
     top: auto;
-    bottom: 16px;
-    left: 12px;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    left: max(12px, env(safe-area-inset-left));
   }
 
   .sourcesDock { bottom: 16px; }
 
-  .stage { width: 100%; }
+  .stage { width: min(100%, 720px); margin: 0 auto; }
+  .index, .portrait { pointer-events: none; }
 
   .title h1 { font-size: 22px; }
   .chapter span { display: none; }
@@ -533,9 +534,10 @@
   .mobileNav button {
     display: grid;
     gap: 4px;
+    min-height: 52px;
     text-align: left;
-    padding: 12px;
-    border-radius: 999px;
+    padding: 12px 14px;
+    border-radius: 18px;
     background: #6e4230;
     color: #fff6e4;
   }
@@ -576,6 +578,7 @@
   .plate img { height: 240px; flex: none; }
 
   .navRow { flex-wrap: wrap; justify-content: center; }
+  .navRow button, .options button, .again { min-height: 44px; }
   .pageMark { flex: 1 1 100%; }
   .readerNav .sources { max-height: 150px; }
 }

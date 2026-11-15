@@ -64,15 +64,41 @@
   overflow: hidden;
   background: #101426;
   touch-action: none;
+  padding:
+    env(safe-area-inset-top)
+    env(safe-area-inset-right)
+    env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
 }
 
 .viewport {
   position: relative;
-  width: min(100vw, calc(100dvh * 16 / 9));
+  width: min(100%, calc(100dvh * 16 / 9));
   aspect-ratio: 16 / 9;
-  max-height: 100dvh;
+  max-height: 100%;
   overflow: hidden;
   background: #8ec7f2;
+}
+
+.orient {
+  display: none;
+  margin: 0 0 12px;
+  text-align: center;
+  color: #f0e4d4;
+}
+.viewport .orient {
+  position: absolute;
+  z-index: 6;
+  top: 58px;
+  left: 50%;
+  width: max-content;
+  max-width: 92%;
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(16, 20, 38, 0.72);
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
 .loading { margin: 0; padding: 24px; color: #1d3558; }
@@ -226,6 +252,8 @@
 }
 
 .question, .overlay {
+  max-height: min(86%, 640px);
+  overflow: auto;
   position: absolute;
   left: 50%;
   top: 50%;
@@ -278,16 +306,26 @@
 .touch button:last-child { min-width: 108px; }
 
 @media (pointer: coarse) {
-  .viewport {
-    width: 100%;
-    max-height: calc(100dvh - 8px);
+  .viewport { width: 100%; }
+  .touch {
+    display: flex;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    left: max(10px, env(safe-area-inset-left));
+    right: max(10px, env(safe-area-inset-right));
   }
-  .touch { display: flex; }
-  .word { bottom: 76px; }
+  .word { bottom: 84px; }
+  .orient { display: block; }
+  .overlay button, .question button { min-height: 44px; }
 }
 
-@media (max-width: 800px) {
-  .pick { grid-template-columns: 1fr; }
+@media (orientation: landscape) and (max-height: 520px) {
+  .touch button { min-height: 44px; min-width: 64px; }
+  .word { bottom: 62px; width: min(320px, 54%); }
+  .orient { display: none; }
+}
+
+@media (max-width: 900px) {
+  .pick { grid-template-columns: 1fr; width: min(560px, 100%); }
   .meter strong { max-width: 34vw; }
-  .textBtn { padding: 6px 8px; font-size: 13px; }
+  .textBtn { padding: 6px 8px; font-size: 13px; min-height: 44px; }
 }

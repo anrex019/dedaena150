@@ -657,11 +657,13 @@
   .leaf { overflow: visible; }
   .spine { display: none; }
   .finale { display: flex; flex-direction: column; }
-  .missions { order: 1; grid-template-columns: 1fr 1fr; }
+  .missions { order: 1; grid-template-columns: 1fr; }
   .banner { order: 2; margin: 10px 0 0; }
   .caveat { order: 3; }
   .mission { min-height: 72px; }
-  .title h1 { margin: 6px 0 8px; font-size: 28px; }
+  .portal { width: min(280px, 86vw); --orbit: 88px; }
+  .leaf input, .leaf textarea { font-size: 16px; }
+  .title h1 { margin: 6px 0 8px; font-size: clamp(24px, 7vw, 32px); }
   .celebrateLetter { --orbit: 120px; }
 }
 

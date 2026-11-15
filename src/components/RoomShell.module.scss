@@ -1,6 +1,10 @@
 .room {
   min-height: 100dvh;
-  padding: 96px 20px 56px;
+  padding:
+    max(96px, calc(72px + env(safe-area-inset-top)))
+    max(20px, env(safe-area-inset-right))
+    max(56px, env(safe-area-inset-bottom))
+    max(20px, env(safe-area-inset-left));
   background: radial-gradient(ellipse at top, #3a3158, #161426 62%);
 }
 

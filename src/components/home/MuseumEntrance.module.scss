@@ -208,33 +208,55 @@
 @media (max-width: 800px) {
   .stage {
     place-items: start center;
-    padding: 72px 12px 28px;
+    padding: max(72px, calc(58px + env(safe-area-inset-top))) 12px max(28px, env(safe-area-inset-bottom));
     overflow: auto;
   }
-  .frame { width: 100%; }
-  .kicker, .plaque, .hint { display: none; }
+  .frame { width: min(100%, 640px); }
+  .doors, .kicker, .plaque, .hint { display: none; }
+  .firefly, .fireflyGold, .canopy { animation: none; }
   .choices {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
     width: min(560px, 100%);
-    margin-top: 14px;
+    margin-top: 16px;
   }
   .choices button {
-    min-height: 72px;
-    padding: 10px 12px;
-    border-radius: 16px;
-    border: 2px solid #e7c27a;
-    background:
-      radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.45), transparent 46%),
-      linear-gradient(#fff6e4, #f0d2a4);
-    color: #3a2614;
+    position: relative;
+    display: block;
+    aspect-ratio: 3 / 4;
+    padding: 0;
+    border: 0;
+    border-radius: 22px 22px 12px 12px;
+    overflow: hidden;
+    background: transparent;
+    color: #fff6e4;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.35);
+  }
+  .choices img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    clip-path: polygon(0% 14%, 8% 5%, 50% 0%, 92% 5%, 100% 14%, 100% 100%, 0% 100%);
+  }
+  .choices span {
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    bottom: 8%;
+    padding: 8px 6px;
+    border-radius: 10px;
+    background: rgba(28, 16, 12, 0.72);
     font-family: "Noto Serif Georgian", serif;
+    font-size: clamp(14px, 3.4vw, 18px);
     font-weight: 700;
     line-height: 1.25;
+    text-wrap: balance;
   }
-  .choices button[data-tone='history'] { box-shadow: inset 4px 0 0 #8a3d32; }
-  .choices button[data-tone='words'] { box-shadow: inset 4px 0 0 #2f6a3e; }
-  .choices button[data-tone='game'] { box-shadow: inset 4px 0 0 #1d4e8f; }
-  .choices button[data-tone='future'] { box-shadow: inset 4px 0 0 #6a3d86; }
+  .choices button[data-open='true'] img { filter: brightness(1.25); }
+}
+
+@media (max-width: 380px) {
+  .choices { grid-template-columns: 1fr; }
 }

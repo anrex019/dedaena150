@@ -106,8 +106,16 @@ export function MuseumEntrance({ reduced }: Props) {
       </div>
       <div className={styles.choices}>
         {doors.map((door) => (
-          <button key={door.id} type="button" data-tone={door.id} onClick={() => openDoor(door.id)}>
-            {door.title}
+          <button
+            key={door.id}
+            type="button"
+            data-tone={door.id}
+            data-open={opening === door.id}
+            aria-label={`${door.title}. კარის გაღება`}
+            onClick={() => openDoor(door.id)}
+          >
+            <img src={asset(`door-${door.id}.jpg`)} alt="" />
+            <span>{door.title}</span>
           </button>
         ))}
       </div>
