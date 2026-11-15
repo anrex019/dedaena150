@@ -20,7 +20,10 @@ function portraitView(width: number, height: number): View {
 
 export default function GameStage({ levelIndex, bridge, reduced, portrait }: Props) {
   const host = useRef<HTMLDivElement>(null);
+  const gameRef = useRef<Phaser.Game | null>(null);
   const [view, setView] = useState<View | null>(null);
+  const viewRef = useRef(view);
+  viewRef.current = view;
 
   useEffect(() => {
     const parent = host.current;
@@ -42,13 +45,14 @@ export default function GameStage({ levelIndex, bridge, reduced, portrait }: Pro
     return () => observer.disconnect();
   }, [portrait]);
 
+  const ready = view !== null;
+
   useEffect(() => {
     const parent = host.current;
     if (!parent || !view) return undefined;
-    let game: Phaser.Game | null = null;
     let cancelled = false;
 
-    game = new Phaser.Game({
+    const game = new Phaser.Game({
       type: Phaser.AUTO,
       parent,
       width: view.width,
@@ -66,9 +70,14 @@ export default function GameStage({ levelIndex, bridge, reduced, portrait }: Pro
       },
       scene: [LevelScene],
     });
+    gameRef.current = game;
 
     const start = () => {
-      if (cancelled || !game) return;
+      if (cancelled) return;
+      const current = viewRef.current;
+      if (current && (game.scale.width !== current.width || game.scale.height !== current.height)) {
+        game.scale.setGameSize(current.width, current.height);
+      }
       game.scene.start('level', { levelIndex, bridge, reduced });
     };
     if (game.isBooted) start();
@@ -76,9 +85,22 @@ export default function GameStage({ levelIndex, bridge, reduced, portrait }: Pro
 
     return () => {
       cancelled = true;
-      game?.destroy(true);
+      game.destroy(true);
+      if (gameRef.current === game) gameRef.current = null;
     };
-  }, [levelIndex, bridge, reduced, view]);
+    // The measured size is read once, when play begins. Later HUD or Safari
+    // toolbar changes must not destroy the game: that runs LevelScene.create
+    // again and puts the player back on the spawn point.
+  }, [levelIndex, bridge, reduced, ready]);
+
+  useEffect(() => {
+    const game = gameRef.current;
+    if (!game || !view || !game.isBooted) return;
+    const widthChanged = Math.abs(game.scale.width - view.width) >= 48;
+    const heightChanged = Math.abs(game.scale.height - view.height) >= 160;
+    if (widthChanged || heightChanged) game.scale.setGameSize(view.width, view.height);
+    else game.scale.refresh();
+  }, [view]);
 
   return <div ref={host} className="game-host" />;
 }

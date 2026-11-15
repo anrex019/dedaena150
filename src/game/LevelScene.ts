@@ -281,6 +281,16 @@ export class LevelScene extends Phaser.Scene {
     const narrowCam = viewW < 800;
     this.cameras.main.setDeadzone(narrowCam ? 64 : 140, narrowCam ? 36 : 80);
     this.cameras.main.setFollowOffset(narrowCam ? -Math.round(viewW * 0.16) : 0, 0);
+    const fitCamera = () => {
+      const width = this.cameras.main.width;
+      const narrow = width < 800;
+      this.cameras.main.setDeadzone(narrow ? 64 : 140, narrow ? 36 : 80);
+      this.cameras.main.setFollowOffset(narrow ? -Math.round(width * 0.16) : 0, 0);
+    };
+    this.scale.on(Phaser.Scale.Events.RESIZE, fitCamera);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off(Phaser.Scale.Events.RESIZE, fitCamera);
+    });
 
     const keyboard = this.input.keyboard;
     if (keyboard) {
