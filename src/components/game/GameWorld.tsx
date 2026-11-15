@@ -97,6 +97,25 @@ export function GameWorld({ reduced }: Props) {
 
   const heldPointers = useRef<Partial<Record<'left' | 'right' | 'jump', number>>>({});
 
+  // Safari may cancel active pointers when browser chrome changes or the app loses focus.
+  // Release all held directions so a cancelled gesture cannot keep the character moving.
+  useEffect(() => {
+    const releaseAll = () => {
+      heldPointers.current = {};
+      bridge.setTouch({ left: false, right: false, jump: false });
+      document.querySelectorAll('[data-game-control]').forEach((button) => {
+        if (button instanceof HTMLElement) button.dataset.down = 'false';
+      });
+    };
+    window.addEventListener('blur', releaseAll);
+    document.addEventListener('visibilitychange', releaseAll);
+    return () => {
+      window.removeEventListener('blur', releaseAll);
+      document.removeEventListener('visibilitychange', releaseAll);
+      releaseAll();
+    };
+  }, [bridge]);
+
   function hold(key: 'left' | 'right' | 'jump', event: PointerEvent<HTMLButtonElement>) {
     event.preventDefault();
     if (event.type === 'pointerdown') {
@@ -106,7 +125,7 @@ export function GameWorld({ reduced }: Props) {
       bridge.setTouch({ [key]: true });
       return;
     }
-    if (heldPointers.current[key] !== undefined && event.pointerId !== heldPointers.current[key]) return;
+    if (heldPointers.current[key] !== event.pointerId) return;
     heldPointers.current[key] = undefined;
     event.currentTarget.dataset.down = 'false';
     bridge.setTouch({ [key]: false });
@@ -287,13 +306,13 @@ export function GameWorld({ reduced }: Props) {
           )}
         </div>
         <div className={styles.touch}>
-          <button type="button" aria-label="მარცხნივ" draggable={false} onContextMenu={(event) => event.preventDefault()} onPointerDown={(event) => hold('left', event)} onPointerUp={(event) => hold('left', event)} onPointerCancel={(event) => hold('left', event)} onLostPointerCapture={(event) => hold('left', event)}>
+          <button type="button" aria-label="მარცხნივ" draggable={false} data-game-control onContextMenu={(event) => event.preventDefault()} onPointerDown={(event) => hold('left', event)} onPointerUp={(event) => hold('left', event)} onPointerCancel={(event) => hold('left', event)} onLostPointerCapture={(event) => hold('left', event)}>
             <ChevronLeft />
           </button>
-          <button type="button" aria-label="მარჯვნივ" draggable={false} onContextMenu={(event) => event.preventDefault()} onPointerDown={(event) => hold('right', event)} onPointerUp={(event) => hold('right', event)} onPointerCancel={(event) => hold('right', event)} onLostPointerCapture={(event) => hold('right', event)}>
+          <button type="button" aria-label="მარჯვნივ" draggable={false} data-game-control onContextMenu={(event) => event.preventDefault()} onPointerDown={(event) => hold('right', event)} onPointerUp={(event) => hold('right', event)} onPointerCancel={(event) => hold('right', event)} onLostPointerCapture={(event) => hold('right', event)}>
             <ChevronRight />
           </button>
-          <button type="button" aria-label="ხტომა" draggable={false} onContextMenu={(event) => event.preventDefault()} onPointerDown={(event) => hold('jump', event)} onPointerUp={(event) => hold('jump', event)} onPointerCancel={(event) => hold('jump', event)} onLostPointerCapture={(event) => hold('jump', event)}>
+          <button type="button" aria-label="ხტომა" draggable={false} data-game-control onContextMenu={(event) => event.preventDefault()} onPointerDown={(event) => hold('jump', event)} onPointerUp={(event) => hold('jump', event)} onPointerCancel={(event) => hold('jump', event)} onLostPointerCapture={(event) => hold('jump', event)}>
             <ArrowUp />
             <span>ხტომა</span>
           </button>
