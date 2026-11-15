@@ -278,15 +278,17 @@ export class LevelScene extends Phaser.Scene {
     body.setMaxVelocity(MAX_SPEED, 760);
     this.physics.add.collider(this.player, this.solids);
     this.movers.forEach((mover) => this.physics.add.collider(this.player, mover.sprite));
-    this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    // Smooth camera tracking without a deadzone: prevents the sudden catch-up
+    // when the player crosses a narrow mobile viewport threshold.
+    this.cameras.main.startFollow(this.player, true, 0.065, 0.09);
     const viewW = this.cameras.main.width;
     const narrowCam = viewW < 800;
-    this.cameras.main.setDeadzone(narrowCam ? 64 : 140, narrowCam ? 36 : 80);
+    this.cameras.main.setDeadzone(0, 0);
     this.cameras.main.setFollowOffset(narrowCam ? -Math.round(viewW * 0.16) : 0, 0);
     const fitCamera = () => {
       const width = this.cameras.main.width;
       const narrow = width < 800;
-      this.cameras.main.setDeadzone(narrow ? 64 : 140, narrow ? 36 : 80);
+      this.cameras.main.setDeadzone(0, 0);
       this.cameras.main.setFollowOffset(narrow ? -Math.round(width * 0.16) : 0, 0);
     };
     this.scale.on(Phaser.Scale.Events.RESIZE, fitCamera);
@@ -417,6 +419,7 @@ export class LevelScene extends Phaser.Scene {
     if (body.velocity.y > 0) this.jumping = false;
 
     this.poseFor(grounded, body.velocity.x, body.velocity.y);
+    this.animateMotion(delta, grounded, body.velocity.x);
     this.rideMovers(body);
 
     for (const item of this.items) {
@@ -506,6 +509,22 @@ export class LevelScene extends Phaser.Scene {
       : pose === 'win' ? 'hero-win'
       : 'hero-idle';
     this.player.setTexture(texture);
+  }
+
+  /** Subtle secondary motion makes the two-frame sprite feel less rigid.
+   * Rotation is visual only and does not change the Arcade physics hitbox. */
+  private animateMotion(delta: number, grounded: boolean, vx: number) {
+    if (this.reduced || this.ended) {
+      this.player.setRotation(0);
+      return;
+    }
+    const speed = Math.min(1, Math.abs(vx) / MAX_SPEED);
+    const running = grounded && this.pose === 'run' && speed > 0.12;
+    const stride = Math.sin(this.time.now * (0.012 + speed * 0.009));
+    const targetTilt = running ? stride * 0.035 * speed : (!grounded ? Phaser.Math.Clamp(vx / MAX_SPEED, -1, 1) * 0.025 : 0);
+    const blend = Math.min(1, delta / 90);
+    this.player.rotation = Phaser.Math.Linear(this.player.rotation, targetTilt, blend);
+    if (running) this.player.anims.timeScale = 0.65 + speed * 0.65;
   }
 
   private rideMovers(body: Phaser.Physics.Arcade.Body) {
