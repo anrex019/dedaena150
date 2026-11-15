@@ -7,13 +7,15 @@ import type { ArtId } from '../data/words';
  * Replace a file in place to swap art without changing the scene code.
  */
 export const gameFiles = {
-  'hero-idle': 'hero-idle.png',
-  'hero-run1': 'hero-run1.png',
-  'hero-run2': 'hero-run2.png',
-  'hero-jump': 'hero-jump.png',
-  'hero-fall': 'hero-fall.png',
-  'hero-land': 'hero-land.png',
-  'hero-win': 'hero-win.png',
+  'hero-idle': 'student-idle.svg',
+  'hero-run1': 'student-run1.svg',
+  'hero-run2': 'student-run2.svg',
+  'hero-run3': 'student-run3.svg',
+  'hero-run4': 'student-run4.svg',
+  'hero-jump': 'student-jump.svg',
+  'hero-fall': 'student-fall.svg',
+  'hero-land': 'student-land.svg',
+  'hero-win': 'student-win.svg',
   'bg-forest': 'bg-forest.jpg',
   'bg-cave': 'bg-cave.jpg',
   'bg-temple': 'bg-temple.jpg',
@@ -28,7 +30,7 @@ export const gameFiles = {
 
 export type GameTexture = keyof typeof gameFiles;
 
-/** The collect pose reuses the jump painting for one short beat. A separate reach frame is not in the set. */
+/** The collect pose briefly uses the student's reaching/jumping silhouette. */
 export const collectTexture: GameTexture = 'hero-jump';
 
 export function textureForArt(art: ArtId): GameTexture {

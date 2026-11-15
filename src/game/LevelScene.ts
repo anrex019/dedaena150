@@ -1,3 +1,4 @@
+import { debugGame } from './debug';
 import Phaser from 'phaser';
 import { levels, requiredItems, type LevelData, type LevelQuestion, type Platform } from '../data/levels';
 import { getState, noteLevelClear, patch } from '../lib/store';
@@ -7,8 +8,8 @@ import { GameBridge } from './bridge';
 
 const VIEW_W = 960;
 const VIEW_H = 540;
-const HERO_W = 200;
-const HERO_H = 260;
+const HERO_W = 400;
+const HERO_H = 520;
 const HERO_DRAW = 150;
 const MAX_SPEED = 240;
 const ACCEL = 1500;
@@ -111,6 +112,7 @@ export class LevelScene extends Phaser.Scene {
   create() {
     if (!this.boot) return;
     const { levelIndex, bridge, reduced } = this.boot;
+    debugGame('scene:create', { levelIndex });
     this.bridge = bridge;
     this.reduced = reduced;
     this.level = levels[levelIndex];
@@ -162,8 +164,8 @@ export class LevelScene extends Phaser.Scene {
     if (!this.anims.exists('run')) {
       this.anims.create({
         key: 'run',
-        frames: [{ key: 'hero-run1' }, { key: 'hero-run2' }],
-        frameRate: 10,
+        frames: [{ key: 'hero-run1' }, { key: 'hero-run2' }, { key: 'hero-run3' }, { key: 'hero-run4' }],
+        frameRate: 12,
         repeat: -1,
       });
     }
@@ -271,8 +273,8 @@ export class LevelScene extends Phaser.Scene {
     this.player.setOrigin(0.5, 1).setDepth(5).setCollideWorldBounds(true);
     this.player.setScale(HERO_DRAW / HERO_H);
     const body = this.player.body as Phaser.Physics.Arcade.Body;
-    body.setSize(90, 96);
-    body.setOffset((HERO_W - 90) / 2, HERO_H - 96);
+    body.setSize(180, 192);
+    body.setOffset((HERO_W - 180) / 2, HERO_H - 192);
     body.setMaxVelocity(MAX_SPEED, 760);
     this.physics.add.collider(this.player, this.solids);
     this.movers.forEach((mover) => this.physics.add.collider(this.player, mover.sprite));
@@ -415,6 +417,7 @@ export class LevelScene extends Phaser.Scene {
     if (body.velocity.y > 0) this.jumping = false;
 
     this.poseFor(grounded, body.velocity.x, body.velocity.y);
+    this.animateMotion(delta, grounded, body.velocity.x);
     this.rideMovers(body);
 
     for (const item of this.items) {
@@ -436,6 +439,7 @@ export class LevelScene extends Phaser.Scene {
       if (checkpoint.used) continue;
       if (Math.abs(this.player.x - checkpoint.x) < 46 && Math.abs(this.player.y - checkpoint.y) < 48) {
         checkpoint.used = true;
+        debugGame('checkpoint:activated', { x: checkpoint.x, y: checkpoint.y, playerX: this.player.x, playerY: this.player.y, cameraX: this.cameras.main.scrollX, collected: this.collected });
         this.spawn = { x: checkpoint.x, y: checkpoint.y };
         this.tweens.killTweensOf(checkpoint.sprite);
         checkpoint.sprite.setY(checkpoint.y - 4);
@@ -505,6 +509,22 @@ export class LevelScene extends Phaser.Scene {
     this.player.setTexture(texture);
   }
 
+  /** Subtle secondary motion makes the two-frame sprite feel less rigid.
+   * Rotation is visual only and does not change the Arcade physics hitbox. */
+  private animateMotion(delta: number, grounded: boolean, vx: number) {
+    if (this.reduced || this.ended) {
+      this.player.setRotation(0);
+      return;
+    }
+    const speed = Math.min(1, Math.abs(vx) / MAX_SPEED);
+    const running = grounded && this.pose === 'run' && speed > 0.12;
+    const stride = Math.sin(this.time.now * (0.012 + speed * 0.009));
+    const targetTilt = running ? stride * 0.035 * speed : (!grounded ? Phaser.Math.Clamp(vx / MAX_SPEED, -1, 1) * 0.025 : 0);
+    const blend = Math.min(1, delta / 90);
+    this.player.rotation = Phaser.Math.Linear(this.player.rotation, targetTilt, blend);
+    this.player.anims.timeScale = running ? 0.65 + speed * 0.65 : 1;
+  }
+
   private rideMovers(body: Phaser.Physics.Arcade.Body) {
     if (body.velocity.y < -40) return;
     for (const mover of this.movers) {
@@ -547,6 +567,7 @@ export class LevelScene extends Phaser.Scene {
   }
 
   private collect(item: Pickup) {
+    debugGame('collect', { item: item.id, x: this.player.x, y: this.player.y, lives: this.lives });
     item.taken = true;
     if (item.glow) item.glow.setVisible(false);
     if (!item.bonus) this.collected += 1;
@@ -578,6 +599,7 @@ export class LevelScene extends Phaser.Scene {
   }
 
   private hurt() {
+    debugGame('hurt:respawn-or-lose', { x: this.player.x, y: this.player.y, spawn: this.spawn, livesBefore: this.lives });
     this.lives -= 1;
     this.invuln = true;
     sound.play('hurt');
