@@ -278,17 +278,15 @@ export class LevelScene extends Phaser.Scene {
     body.setMaxVelocity(MAX_SPEED, 760);
     this.physics.add.collider(this.player, this.solids);
     this.movers.forEach((mover) => this.physics.add.collider(this.player, mover.sprite));
-    // Smooth camera tracking without a deadzone: prevents the sudden catch-up
-    // when the player crosses a narrow mobile viewport threshold.
-    this.cameras.main.startFollow(this.player, true, 0.065, 0.09);
+    this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
     const viewW = this.cameras.main.width;
     const narrowCam = viewW < 800;
-    this.cameras.main.setDeadzone(0, 0);
+    this.cameras.main.setDeadzone(narrowCam ? 64 : 140, narrowCam ? 36 : 80);
     this.cameras.main.setFollowOffset(narrowCam ? -Math.round(viewW * 0.16) : 0, 0);
     const fitCamera = () => {
       const width = this.cameras.main.width;
       const narrow = width < 800;
-      this.cameras.main.setDeadzone(0, 0);
+      this.cameras.main.setDeadzone(narrow ? 64 : 140, narrow ? 36 : 80);
       this.cameras.main.setFollowOffset(narrow ? -Math.round(width * 0.16) : 0, 0);
     };
     this.scale.on(Phaser.Scale.Events.RESIZE, fitCamera);
@@ -524,7 +522,7 @@ export class LevelScene extends Phaser.Scene {
     const targetTilt = running ? stride * 0.035 * speed : (!grounded ? Phaser.Math.Clamp(vx / MAX_SPEED, -1, 1) * 0.025 : 0);
     const blend = Math.min(1, delta / 90);
     this.player.rotation = Phaser.Math.Linear(this.player.rotation, targetTilt, blend);
-    if (running) this.player.anims.timeScale = 0.65 + speed * 0.65;
+    this.player.anims.timeScale = running ? 0.65 + speed * 0.65 : 1;
   }
 
   private rideMovers(body: Phaser.Physics.Arcade.Body) {
