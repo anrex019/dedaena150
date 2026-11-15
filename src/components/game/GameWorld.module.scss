@@ -312,6 +312,13 @@
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
 }
+.touch button svg,
+.touch button span {
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
 .touch button:last-child { min-width: 108px; }
 .touch button[data-down='true'] {
   transform: translateY(2px) scale(0.96);

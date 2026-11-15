@@ -1,3 +1,4 @@
+import { debugGame } from './debug';
 import Phaser from 'phaser';
 import { levels, requiredItems, type LevelData, type LevelQuestion, type Platform } from '../data/levels';
 import { getState, noteLevelClear, patch } from '../lib/store';
@@ -111,6 +112,7 @@ export class LevelScene extends Phaser.Scene {
   create() {
     if (!this.boot) return;
     const { levelIndex, bridge, reduced } = this.boot;
+    debugGame('scene:create', { levelIndex });
     this.bridge = bridge;
     this.reduced = reduced;
     this.level = levels[levelIndex];
@@ -547,6 +549,7 @@ export class LevelScene extends Phaser.Scene {
   }
 
   private collect(item: Pickup) {
+    debugGame('collect', { item: item.id, x: this.player.x, y: this.player.y, lives: this.lives });
     item.taken = true;
     if (item.glow) item.glow.setVisible(false);
     if (!item.bonus) this.collected += 1;
@@ -578,6 +581,7 @@ export class LevelScene extends Phaser.Scene {
   }
 
   private hurt() {
+    debugGame('hurt:respawn-or-lose', { x: this.player.x, y: this.player.y, spawn: this.spawn, livesBefore: this.lives });
     this.lives -= 1;
     this.invuln = true;
     sound.play('hurt');
