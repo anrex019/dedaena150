@@ -10,6 +10,8 @@ export const gameFiles = {
   'hero-idle': 'student-idle.svg',
   'hero-run1': 'student-run1.svg',
   'hero-run2': 'student-run2.svg',
+  'hero-run3': 'student-run3.svg',
+  'hero-run4': 'student-run4.svg',
   'hero-jump': 'student-jump.svg',
   'hero-fall': 'student-fall.svg',
   'hero-land': 'student-land.svg',

@@ -8,8 +8,8 @@ import { GameBridge } from './bridge';
 
 const VIEW_W = 960;
 const VIEW_H = 540;
-const HERO_W = 200;
-const HERO_H = 260;
+const HERO_W = 400;
+const HERO_H = 520;
 const HERO_DRAW = 150;
 const MAX_SPEED = 240;
 const ACCEL = 1500;
@@ -164,8 +164,8 @@ export class LevelScene extends Phaser.Scene {
     if (!this.anims.exists('run')) {
       this.anims.create({
         key: 'run',
-        frames: [{ key: 'hero-run1' }, { key: 'hero-run2' }],
-        frameRate: 10,
+        frames: [{ key: 'hero-run1' }, { key: 'hero-run2' }, { key: 'hero-run3' }, { key: 'hero-run4' }],
+        frameRate: 12,
         repeat: -1,
       });
     }
@@ -273,8 +273,8 @@ export class LevelScene extends Phaser.Scene {
     this.player.setOrigin(0.5, 1).setDepth(5).setCollideWorldBounds(true);
     this.player.setScale(HERO_DRAW / HERO_H);
     const body = this.player.body as Phaser.Physics.Arcade.Body;
-    body.setSize(90, 96);
-    body.setOffset((HERO_W - 90) / 2, HERO_H - 96);
+    body.setSize(180, 192);
+    body.setOffset((HERO_W - 180) / 2, HERO_H - 192);
     body.setMaxVelocity(MAX_SPEED, 760);
     this.physics.add.collider(this.player, this.solids);
     this.movers.forEach((mover) => this.physics.add.collider(this.player, mover.sprite));
