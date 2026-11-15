@@ -40,7 +40,9 @@ export default function GameStage({ levelIndex, bridge, reduced, portrait }: Pro
       const height = parent.clientHeight;
       if (width < 80 || height < 80) return;
       const next = portraitView(width, height);
-      setView((prev) => (prev?.width === next.width && prev.height === next.height ? prev : next));
+      // Ignore tiny Safari viewport changes caused by browser chrome and HUD layout.
+      // A meaningful orientation/layout change still updates the game viewport.
+      setView((prev) => (prev && Math.abs(prev.width - next.width) < 48 && prev.height === next.height ? prev : next));
     };
     apply();
     const observer = new ResizeObserver(apply);
@@ -104,8 +106,12 @@ export default function GameStage({ levelIndex, bridge, reduced, portrait }: Pro
     if (!game || !view || !game.isBooted) return;
     const widthChanged = Math.abs(game.scale.width - view.width) >= 48;
     const heightChanged = Math.abs(game.scale.height - view.height) >= 160;
-    if (widthChanged || heightChanged) game.scale.setGameSize(view.width, view.height);
-    else game.scale.refresh();
+    if (widthChanged || heightChanged) {
+      debugGame('phaser:resize', { from: { width: game.scale.width, height: game.scale.height }, to: view });
+      game.scale.setGameSize(view.width, view.height);
+    }
+    // Avoid refresh() on every minor ResizeObserver event. On iOS Safari,
+    // transient toolbar/layout shifts otherwise visibly jump the camera.
   }, [view]);
 
   return <div ref={host} className="game-host" />;
