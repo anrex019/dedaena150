@@ -110,9 +110,9 @@ export class LevelScene extends Phaser.Scene {
   }
 
   create() {
-    debugGame('scene:create', { levelIndex: this.levelIndex });
     if (!this.boot) return;
     const { levelIndex, bridge, reduced } = this.boot;
+    debugGame('scene:create', { levelIndex });
     this.bridge = bridge;
     this.reduced = reduced;
     this.level = levels[levelIndex];
