@@ -23,6 +23,8 @@ export default function GameStage({ levelIndex, bridge, reduced, portrait }: Pro
   const gameRef = useRef<Phaser.Game | null>(null);
   const [view, setView] = useState<View | null>(null);
   const viewRef = useRef(view);
+  const reducedRef = useRef(reduced);
+  reducedRef.current = reduced;
   viewRef.current = view;
 
   useEffect(() => {
@@ -78,7 +80,7 @@ export default function GameStage({ levelIndex, bridge, reduced, portrait }: Pro
       if (current && (game.scale.width !== current.width || game.scale.height !== current.height)) {
         game.scale.setGameSize(current.width, current.height);
       }
-      game.scene.start('level', { levelIndex, bridge, reduced });
+      game.scene.start('level', { levelIndex, bridge, reduced: reducedRef.current });
     };
     if (game.isBooted) start();
     else game.events.once(Phaser.Core.Events.READY, start);
@@ -91,7 +93,7 @@ export default function GameStage({ levelIndex, bridge, reduced, portrait }: Pro
     // The measured size is read once, when play begins. Later HUD or Safari
     // toolbar changes must not destroy the game: that runs LevelScene.create
     // again and puts the player back on the spawn point.
-  }, [levelIndex, bridge, reduced, ready]);
+  }, [levelIndex, bridge, ready]);
 
   useEffect(() => {
     const game = gameRef.current;
