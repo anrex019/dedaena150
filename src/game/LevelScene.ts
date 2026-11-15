@@ -417,6 +417,7 @@ export class LevelScene extends Phaser.Scene {
     if (body.velocity.y > 0) this.jumping = false;
 
     this.poseFor(grounded, body.velocity.x, body.velocity.y);
+    this.animateMotion(delta, grounded, body.velocity.x);
     this.rideMovers(body);
 
     for (const item of this.items) {
@@ -506,6 +507,22 @@ export class LevelScene extends Phaser.Scene {
       : pose === 'win' ? 'hero-win'
       : 'hero-idle';
     this.player.setTexture(texture);
+  }
+
+  /** Subtle secondary motion makes the two-frame sprite feel less rigid.
+   * Rotation is visual only and does not change the Arcade physics hitbox. */
+  private animateMotion(delta: number, grounded: boolean, vx: number) {
+    if (this.reduced || this.ended) {
+      this.player.setRotation(0);
+      return;
+    }
+    const speed = Math.min(1, Math.abs(vx) / MAX_SPEED);
+    const running = grounded && this.pose === 'run' && speed > 0.12;
+    const stride = Math.sin(this.time.now * (0.012 + speed * 0.009));
+    const targetTilt = running ? stride * 0.035 * speed : (!grounded ? Phaser.Math.Clamp(vx / MAX_SPEED, -1, 1) * 0.025 : 0);
+    const blend = Math.min(1, delta / 90);
+    this.player.rotation = Phaser.Math.Linear(this.player.rotation, targetTilt, blend);
+    this.player.anims.timeScale = running ? 0.65 + speed * 0.65 : 1;
   }
 
   private rideMovers(body: Phaser.Physics.Arcade.Body) {
