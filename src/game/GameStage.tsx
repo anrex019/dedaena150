@@ -1,3 +1,4 @@
+import { debugGame } from './debug';
 import { useEffect, useRef, useState } from 'react';
 import Phaser from 'phaser';
 import { LevelScene } from './LevelScene';
@@ -54,6 +55,7 @@ export default function GameStage({ levelIndex, bridge, reduced, portrait }: Pro
     if (!parent || !view) return undefined;
     let cancelled = false;
 
+    debugGame('phaser:create', { levelIndex, view });
     const game = new Phaser.Game({
       type: Phaser.AUTO,
       parent,
@@ -80,6 +82,7 @@ export default function GameStage({ levelIndex, bridge, reduced, portrait }: Pro
       if (current && (game.scale.width !== current.width || game.scale.height !== current.height)) {
         game.scale.setGameSize(current.width, current.height);
       }
+      debugGame('phaser:scene-start', { levelIndex });
       game.scene.start('level', { levelIndex, bridge, reduced: reducedRef.current });
     };
     if (game.isBooted) start();
@@ -87,6 +90,7 @@ export default function GameStage({ levelIndex, bridge, reduced, portrait }: Pro
 
     return () => {
       cancelled = true;
+      debugGame('phaser:destroy', { levelIndex });
       game.destroy(true);
       if (gameRef.current === game) gameRef.current = null;
     };
