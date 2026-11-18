@@ -11,6 +11,7 @@ import { InfoModal } from './components/InfoModal';
 import { TopBar } from './components/TopBar';
 import { WordsWorld } from './components/words/WordsWorld';
 import { useReducedMotion } from './lib/a11y';
+import { sound } from './lib/sound';
 import { go, readRoom, useRoom } from './lib/route';
 import { allWorldsComplete, patch, useStore } from './lib/store';
 
@@ -78,6 +79,7 @@ export function App() {
 
   useEffect(() => {
     document.title = titles[room];
+    sound.setRoom(room);
     window.scrollTo(0, 0);
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   }, [room]);
