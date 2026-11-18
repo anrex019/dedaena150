@@ -24,9 +24,11 @@ export function WordMark({ art, word, file, plain, eager, photoId }: Props) {
   const [failed, setFailed] = useState(false);
   if (photo) {
     return <span className={styles.mark} aria-label={`${word} — ფოტო Wikimedia Commons-იდან`}>
-      <a href={photo.page} target="_blank" rel="noopener noreferrer" title="ფოტოს წყარო და ავტორი Wikimedia Commons-ზე" onClick={(event) => event.stopPropagation()}>
-        <img src={photo.url} alt={word} width={512} height={512} loading={eager ? 'eager' : 'lazy'} decoding="async" />
-      </a>
+      {eager ? (
+        <a href={photo.page} target="_blank" rel="noopener noreferrer" title="ფოტოს წყარო და ავტორი Wikimedia Commons-ზე">
+          <img src={photo.url} alt={word} width={512} height={512} loading="eager" decoding="async" />
+        </a>
+      ) : <img src={photo.url} alt={word} width={512} height={512} loading="lazy" decoding="async" />}
     </span>;
   }
   if (file && !failed) {
