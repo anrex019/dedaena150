@@ -53,7 +53,7 @@ export function WordBook({ word, saved, canSpeak, reduced, empty, onFavorite, on
           transition={{ duration: motionOff ? 0 : 0.32, ease: [0.22, 0.8, 0.3, 1] }}
         >
           <div className={styles.plate}>
-            <WordMark art={word.art} word={word.word} file={word.illustration} plain={word.plain} eager />
+            <WordMark art={word.art} word={word.word} file={word.illustration} photoId={word.id} plain={word.plain} eager />
           </div>
           <div className={styles.nameRow}>
             <h2>{word.word}</h2>
