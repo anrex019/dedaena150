@@ -66,7 +66,7 @@ export function WordList({ words, selectedId, favorites, empty, reduced, onSelec
                   aria-pressed={active}
                   onClick={() => onSelect(word.id, true)}
                 >
-                  <WordMark art={word.art} word={word.word} file={word.illustration} plain={word.plain} />
+                  <WordMark art={word.art} word={word.word} file={word.illustration} photoId={word.id} plain={word.plain} />
                   <strong>{word.word}</strong>
                 </button>
                 <button
