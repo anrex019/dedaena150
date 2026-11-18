@@ -28,21 +28,53 @@ export const photoQueries: Record<string, string> = {
   sinatle:'sunlight through window photograph', game:'night landscape photograph',
   dila:'morning sunrise landscape photograph', grubl:'cloud sky photograph',
 };
+
+// Teacher review: deliberately more specific searches for the 23 rejected images.
+// The Commons API can still return an imperfect match; these are review candidates.
+const corrections: Record<string, string> = {
+  mze: 'sun solar disk NASA photograph',
+  wigni: 'Deda Ena 1876 cover',
+  ena: 'Albert Einstein sticks his tongue 1951',
+  deda: 'mother reading to child illustration',
+  mama: 'father with young son portrait photograph',
+  babua: 'elderly grandfather portrait photograph',
+  ca: 'clear blue sky white clouds landscape photograph',
+  xe: 'single oak tree meadow photograph',
+  dzaghli: 'golden retriever dog standing grass photograph',
+  cxeni: 'brown horse full body meadow photograph',
+  mdinare: 'river flowing green valley landscape photograph',
+  skola: 'primary school classroom desks photograph',
+  rveuli: 'open lined school exercise notebook photograph',
+  sitqva: 'Georgian alphabet printed text closeup photograph',
+  wera: 'hand writing pencil notebook closeup photograph',
+  dedaena: 'Deda Ena 1876 cover',
+  leqsi: 'open poetry book printed verse photograph',
+  xeli: 'open palm human hand photograph',
+  quri: 'human external ear close up photograph',
+  sinatle: 'sun rays shining through forest photograph',
+  game: 'moonlit night stars landscape photograph',
+};
+const exactFiles: Record<string, string> = {
+  wigni: 'File:Deda Ena 1876 cover.jpg',
+  dedaena: 'File:Deda Ena 1876 cover.jpg',
+  ena: 'File:Albert Einstein sticks his tongue 1951.jpg',
+};
 type CommonsPhoto = { url: string; page: string };
 const cache = new Map<string, Promise<CommonsPhoto | null>>();
 
 export function findCommonsPhoto(id: string): Promise<CommonsPhoto | null> {
-  const query = photoQueries[id];
+  const query = corrections[id] ?? photoQueries[id];
   if (!query) return Promise.resolve(null);
   const existing = cache.get(id);
   if (existing) return existing;
   const request = (async () => {
     try {
+      const exact = exactFiles[id];
       const params = new URLSearchParams({
-        action: 'query', generator: 'search', gsrsearch: query,
-        gsrnamespace: '6', gsrlimit: '8', prop: 'imageinfo',
-        iiprop: 'url|mime|extmetadata', iiurlwidth: '640', format: 'json',
-        origin: '*',
+        action: 'query',
+        ...(exact ? { titles: exact } : { generator: 'search', gsrsearch: query, gsrnamespace: '6', gsrlimit: '12' }),
+        prop: 'imageinfo', iiprop: 'url|mime|extmetadata',
+        iiurlwidth: '640', format: 'json', origin: '*',
       });
       const response = await fetch(`https://commons.wikimedia.org/w/api.php?${params.toString()}`);
       if (!response.ok) return null;
@@ -53,17 +85,23 @@ export function findCommonsPhoto(id: string): Promise<CommonsPhoto | null> {
         }> }> };
       };
       const pages = Object.values(data.query?.pages ?? {});
-      const photo = pages.map((page) => page.imageinfo?.[0]).find((item) =>
-        item?.thumburl && item.descriptionurl &&
-        (item.mime === 'image/jpeg' || item.mime === 'image/png' || item.mime === 'image/webp') &&
-        /^(CC|Public domain|PD)/i.test(item.extmetadata?.LicenseShortName?.value ?? '')
-      );
+      const photos = pages.map((page) => ({ title: page.title ?? '', info: page.imageinfo?.[0] }))
+        .filter(({ info }) =>
+          info?.thumburl && info.descriptionurl &&
+          (info.mime === 'image/jpeg' || info.mime === 'image/png' || info.mime === 'image/webp') &&
+          /^(CC|Public domain|PD)/i.test(info.extmetadata?.LicenseShortName?.value ?? '')
+        );
+      // Prefer titles containing the distinctive subject instead of arbitrary API order.
+      const tokens = query.toLowerCase().split(/\s+/).filter((token) => token.length >= 5 && !['photo', 'photograph', 'closeup', 'portrait'].includes(token));
+      photos.sort((a, b) => {
+        const score = (title: string) => tokens.filter((token) => title.toLowerCase().includes(token)).length;
+        return score(b.title) - score(a.title);
+      });
+      const photo = photos[0]?.info;
       return photo?.thumburl && photo.descriptionurl
         ? { url: photo.thumburl, page: photo.descriptionurl }
         : null;
-    } catch {
-      return null;
-    }
+    } catch { return null; }
   })();
   cache.set(id, request);
   return request;
