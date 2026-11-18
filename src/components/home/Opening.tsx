@@ -98,6 +98,11 @@ export function Opening({ phase, reduced, onBegin, onFinish }: Props) {
       <span className={styles.flower} style={{ right: '5%', top: '18%' }} aria-hidden="true" />
 
       <div className={styles.stage}>
+        {phase === 'welcome' && <div className={styles.schoolIdentity} aria-label="პროექტის წარმდგენი სკოლა">
+          <span className={styles.schoolEyebrow}>საგანმანათლებლო პროექტი · 1876–2026</span>
+          <span className={styles.schoolDivider} aria-hidden="true">✦</span>
+          <span className={styles.schoolName}>სსიპ — ოზურგეთის მუნიციპალიტეტის<br />დაბა ლაითურის საჯარო სკოლა</span>
+        </div>}
         <div className={styles.book} data-open={phase === 'cinema' && !reduced ? 'true' : 'false'}>
           <div className={styles.pages} aria-hidden="true" />
           <div className={styles.cover}>
@@ -125,11 +130,13 @@ export function Opening({ phase, reduced, onBegin, onFinish }: Props) {
             >
               <h1>დედაენა 150</h1>
               <p>150 წელი — ერთი ენა, უსასრულო ისტორია</p>
+              <p className={styles.introDescription}>ქართული სიტყვის სამყაროში მოგზაურობა ჩვენი სკოლისგან</p>
               <button ref={startRef} type="button" className={styles.start} onClick={() => { void begin(); }}>
                 <span className={styles.mote} aria-hidden="true" />
-                მოგზაურობის დაწყება
+                საიტზე შესვლა
                 <span className={styles.mote} aria-hidden="true" />
               </button>
+              <span className={styles.credit}>წარმოგიდგენთ დაბა ლაითურის საჯარო სკოლა</span>
             </motion.div>
           ) : (
             <motion.div key="cinema" className={styles.caption} initial={{ opacity: reduced ? 1 : 0 }} animate={{ opacity: 1 }} transition={{ duration: reduced ? 0 : 0.4 }}>
