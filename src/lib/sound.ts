@@ -16,6 +16,12 @@ class SoundBus {
   private step = 0;
   private pad: OscillatorNode[] = [];
   private room: MusicRoom = 'home';
+  private recording: HTMLAudioElement | null = null;
+  // Wikimedia Commons recordings; see MUSIC_CREDITS.md for attribution and licenses.
+  private readonly recordings: Partial<Record<MusicRoom, string>> = {
+    history: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Chakrulo%20(1957).ogg',
+    words: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Tavisupleba%20instrumental.ogg',
+  };
   // Original compositions; no third-party recordings or copyrighted melodies.
   private readonly themes: Record<MusicRoom, { notes: number[]; root: number; beat: number; wave: OscillatorType; bass: number[]; volume: number }> = {
     home: { notes: [0, 2, 5, 7, 5, 2, 0, -3], root: 293.66, beat: 0.46, wave: 'triangle', bass: [146.83, 220], volume: 0.045 },
@@ -123,6 +129,26 @@ class SoundBus {
     const ctx = this.ensure();
     if (!ctx || !this.musicGain) return;
     this.running = true;
+    const recordingUrl = this.recordings[this.room];
+    if (recordingUrl) {
+      const audio = new Audio(recordingUrl);
+      audio.loop = true;
+      audio.volume = 0.18;
+      this.recording = audio;
+      void audio.play().catch(() => {
+        // Browser/network may block external audio; retain original synthesized fallback.
+        if (this.recording !== audio || !this.running) return;
+        this.recording = null;
+        this.startSynthMusic();
+      });
+      return;
+    }
+    this.startSynthMusic();
+  }
+
+  private startSynthMusic() {
+    const ctx = this.ensure();
+    if (!ctx || !this.musicGain) return;
     this.themes[this.room].bass.forEach((freq, index) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -183,6 +209,11 @@ class SoundBus {
   }
 
   private stopMusic() {
+    if (this.recording) {
+      this.recording.pause();
+      this.recording.src = '';
+      this.recording = null;
+    }
     if (this.timer) window.clearInterval(this.timer);
     this.timer = 0;
     this.pad.forEach((osc) => {
