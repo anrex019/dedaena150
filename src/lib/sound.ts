@@ -1,3 +1,5 @@
+type MusicRoom = 'home' | 'history' | 'words' | 'game' | 'future';
+
 type SfxName = 'click' | 'open' | 'jump' | 'collect' | 'hurt' | 'check' | 'win' | 'secret';
 
 /**
@@ -13,7 +15,24 @@ class SoundBus {
   private next = 0;
   private step = 0;
   private pad: OscillatorNode[] = [];
-  private readonly melody = [0, 3, 5, 7, 10, 7, 5, 3, 5, 3];
+  private room: MusicRoom = 'home';
+  // Original compositions; no third-party recordings or copyrighted melodies.
+  private readonly themes: Record<MusicRoom, { notes: number[]; root: number; beat: number; wave: OscillatorType; bass: number[]; volume: number }> = {
+    home: { notes: [0, 2, 5, 7, 5, 2, 0, -3], root: 293.66, beat: 0.46, wave: 'triangle', bass: [146.83, 220], volume: 0.045 },
+    history: { notes: [0, 2, 5, 7, 9, 7, 5, 2, 0, -3, 0, 2], root: 293.66, beat: 0.43, wave: 'triangle', bass: [146.83, 220], volume: 0.055 },
+    words: { notes: [0, 4, 7, 12, 7, 4, 2, 5, 9, 5, 2, 0], root: 261.63, beat: 0.65, wave: 'sine', bass: [130.81, 196], volume: 0.05 },
+    game: { notes: [0, 7, 5, 9, 7, 12, 9, 5, 2, 7, 5, 2], root: 329.63, beat: 0.24, wave: 'square', bass: [164.81, 246.94], volume: 0.027 },
+    future: { notes: [0, 0, 7, 5, 3, 0, 10, 7, 5, 3, 0, -2], root: 164.81, beat: 0.3, wave: 'sawtooth', bass: [82.41, 123.47], volume: 0.023 },
+  };
+
+  setRoom(room: MusicRoom) {
+    if (this.room === room) return;
+    this.room = room;
+    if (this.running) {
+      this.stopMusic();
+      this.startMusic();
+    }
+  }
 
   async unlock() {
     const ctx = this.ensure();
@@ -104,12 +123,12 @@ class SoundBus {
     const ctx = this.ensure();
     if (!ctx || !this.musicGain) return;
     this.running = true;
-    [146.83, 220].forEach((freq, index) => {
+    this.themes[this.room].bass.forEach((freq, index) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
       osc.frequency.value = freq;
-      gain.gain.value = index === 0 ? 0.045 : 0.028;
+      gain.gain.value = index === 0 ? 0.045 : 0.024;
       osc.connect(gain);
       gain.connect(this.musicGain!);
       osc.start();
@@ -123,21 +142,22 @@ class SoundBus {
   private schedule() {
     const ctx = this.ctx;
     if (!ctx || !this.running || !this.musicGain) return;
+    const theme = this.themes[this.room];
     while (this.next < ctx.currentTime + 0.3) {
-      const semi = this.melody[this.step % this.melody.length];
-      const freq = 293.66 * 2 ** (semi / 12);
+      const semi = theme.notes[this.step % theme.notes.length];
+      const freq = theme.root * 2 ** (semi / 12);
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = 'triangle';
+      osc.type = theme.wave;
       osc.frequency.value = freq;
       gain.gain.setValueAtTime(0.0001, this.next);
-      gain.gain.exponentialRampToValueAtTime(0.05, this.next + 0.04);
-      gain.gain.exponentialRampToValueAtTime(0.0001, this.next + 0.42);
+      gain.gain.exponentialRampToValueAtTime(theme.volume, this.next + 0.035);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.next + theme.beat * 0.92);
       osc.connect(gain);
       gain.connect(this.musicGain);
       osc.start(this.next);
-      osc.stop(this.next + 0.46);
-      this.next += 0.5;
+      osc.stop(this.next + theme.beat);
+      this.next += theme.beat;
       this.step += 1;
     }
   }
