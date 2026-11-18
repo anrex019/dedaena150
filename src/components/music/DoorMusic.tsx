@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Room } from '../../lib/route';
 import { sound } from '../../lib/sound';
-import { getState } from '../../lib/store';
 import styles from './DoorMusic.module.scss';
 
 const tracks: Partial<Record<Room, { title: string; video?: string; audio?: string; source: string }>> = {
@@ -13,34 +12,42 @@ const tracks: Partial<Record<Room, { title: string; video?: string; audio?: stri
 
 export function DoorMusic({ room }: { room: Room }) {
   const [open, setOpen] = useState(false);
+  const [enabled, setEnabled] = useState(true);
   const track = tracks[room];
   useEffect(() => {
     setOpen(false);
-    if (getState().music) sound.setMusic(true);
+    sound.setMusic(false);
   }, [room]);
   if (!track) return null;
   return (
     <aside className={styles.dock} aria-label="კარის ქართული მუსიკა">
       <button type="button" className={styles.toggle} onClick={() => {
-        if (!open) sound.setMusic(false);
-        else if (getState().music) sound.setMusic(true);
-        setOpen(!open);
+        setEnabled((value) => !value);
+        sound.setMusic(false);
       }}>
-        {open ? '♫ მუსიკის დახურვა' : '♫ ქართული მუსიკის მოსმენა'}
+        {enabled ? '♫ მუსიკის გამორთვა' : '♫ მუსიკის ჩართვა'}
+      </button>
+      {enabled && track.video && (
+        <iframe
+          key={room}
+          className={open ? styles.player : styles.hiddenPlayer}
+          title={track.title}
+          src={`https://www.youtube-nocookie.com/embed/${track.video}?autoplay=1&playsinline=1&controls=1&loop=1&playlist=${track.video}`}
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
+      )}
+      {enabled && track.audio && (
+        <audio key={room} src={track.audio} autoPlay loop controls={open} />
+      )}
+      <button type="button" className={styles.details} onClick={() => setOpen(!open)}>
+        {open ? 'პლეერის დამალვა' : 'თუ ხმა არ ისმის — პლეერის გახსნა'}
       </button>
       {open && <div className={styles.panel}>
         <strong>{track.title}</strong>
-        {track.video ? (
-          <iframe
-            title={track.title}
-            src={`https://www.youtube-nocookie.com/embed/${track.video}?autoplay=1&playsinline=1`}
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
-          />
-        ) : <audio src={track.audio} controls autoPlay loop />}
         <a href={track.source} target="_blank" rel="noopener noreferrer">წყაროს გახსნა ↗</a>
-        <small>თუ დაკვრა დაიბლოკა, დააჭირე Play-ს ან გახსენი წყარო.</small>
+        <small>ბრაუზერმა შეიძლება ხმით ავტომატური დაკვრა დაბლოკოს. ასეთ შემთხვევაში დააჭირე Play-ს. YouTube-ის ჩაშენების შეზღუდვაც შესაძლებელია.</small>
       </div>}
     </aside>
   );
