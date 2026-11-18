@@ -9,6 +9,7 @@ import { Opening } from './components/home/Opening';
 import { SecretDoor } from './components/home/SecretDoor';
 import { InfoModal } from './components/InfoModal';
 import { TopBar } from './components/TopBar';
+import { DoorMusic } from './components/music/DoorMusic';
 import { WordsWorld } from './components/words/WordsWorld';
 import { useReducedMotion } from './lib/a11y';
 import { sound } from './lib/sound';
@@ -168,6 +169,7 @@ export function App() {
           onClose={() => undefined}
         />
       )}
+      {gate === 'off' && <DoorMusic room={room} />}
       {info && (
         <InfoModal
           onClose={() => setInfo(false)}
