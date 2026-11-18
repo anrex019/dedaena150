@@ -5,3 +5,7 @@
 .panel audio { width: 100%; }
 .panel a { color: #ffdc96; font-size: 13px; }
 .panel small { opacity: .75; font-size: 11px; }
+
+.hiddenPlayer { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; border: 0; }
+.player { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 8px; margin-top: 8px; }
+.details { display: block; width: 100%; margin-top: 5px; background: #251d37; color: #ffdc96; border: 1px solid #d9b77d; border-radius: 8px; padding: 6px; cursor: pointer; font: inherit; font-size: 12px; }
