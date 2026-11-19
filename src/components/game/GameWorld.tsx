@@ -77,6 +77,11 @@ export function GameWorld({ reduced }: Props) {
   const playing = mode === 'play';
 
   useEffect(() => {
+    window.dispatchEvent(new CustomEvent('dedaena:game-music', { detail: playing ? levelIndex : null }));
+    return () => window.dispatchEvent(new CustomEvent('dedaena:game-music', { detail: null }));
+  }, [playing, levelIndex]);
+
+  useEffect(() => {
     document.documentElement.dataset.play = playing ? 'game' : '';
     return () => {
       delete document.documentElement.dataset.play;

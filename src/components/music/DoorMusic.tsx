@@ -10,10 +10,29 @@ const tracks: Partial<Record<Room, { title: string; video?: string; audio?: stri
   future: { title: 'ნიაზ დიასამიძე & 33ა — სიპი', video: '1oHPcVuqa5E', source: 'https://www.youtube.com/watch?v=1oHPcVuqa5E' },
 };
 
+// Three distinct recordings for the three playable levels; these links must be
+// checked in preview because video owners can disable third-party embedding.
+const gameLevelTracks = [
+  { title: 'სუხიშვილები — ხანჯლური', video: 'TNKRZ8JNCzE', source: 'https://www.youtube.com/watch?v=TNKRZ8JNCzE' },
+  { title: 'ნიაზ დიასამიძე & 33ა — ადე, შახედე ქვეყანას', video: 'tlPdO1nUVrE', source: 'https://www.youtube.com/watch?v=tlPdO1nUVrE' },
+  { title: 'ნიაზ დიასამიძე & 33ა — სიპი', video: '1oHPcVuqa5E', source: 'https://www.youtube.com/watch?v=1oHPcVuqa5E' },
+] as const;
+
 export function DoorMusic({ room }: { room: Room }) {
   const [open, setOpen] = useState(false);
   const [enabled, setEnabled] = useState(true);
-  const track = tracks[room];
+  const [gameLevel, setGameLevel] = useState<number | null>(null);
+  useEffect(() => {
+    const onLevel = (event: Event) => {
+      const index = (event as CustomEvent<number | null>).detail;
+      setGameLevel(typeof index === 'number' && index >= 0 && index < gameLevelTracks.length ? index : null);
+    };
+    window.addEventListener('dedaena:game-music', onLevel);
+    return () => window.removeEventListener('dedaena:game-music', onLevel);
+  }, []);
+  const track = room === 'game'
+    ? (gameLevel === null ? null : gameLevelTracks[gameLevel])
+    : tracks[room];
   useEffect(() => {
     setOpen(false);
     sound.setMusic(false);
@@ -27,9 +46,9 @@ export function DoorMusic({ room }: { room: Room }) {
       }}>
         {enabled ? '♫ მუსიკის გამორთვა' : '♫ მუსიკის ჩართვა'}
       </button>
-      {enabled && track.video && (
+      {enabled && 'video' in track && track.video && (
         <iframe
-          key={room}
+          key={`${room}-${gameLevel ?? 'room'}`}
           className={open ? styles.player : styles.hiddenPlayer}
           title={track.title}
           src={`https://www.youtube-nocookie.com/embed/${track.video}?autoplay=1&playsinline=1&controls=1&loop=1&playlist=${track.video}`}
@@ -38,8 +57,8 @@ export function DoorMusic({ room }: { room: Room }) {
           referrerPolicy="strict-origin-when-cross-origin"
         />
       )}
-      {enabled && track.audio && (
-        <audio key={room} src={track.audio} autoPlay loop controls={open} />
+      {enabled && 'audio' in track && track.audio && (
+        <audio key={`${room}-${gameLevel ?? 'room'}`} src={'audio' in track ? track.audio : undefined} autoPlay loop controls={open} />
       )}
       <button type="button" className={styles.details} onClick={() => setOpen(!open)}>
         {open ? 'პლეერის დამალვა' : 'თუ ხმა არ ისმის — პლეერის გახსნა'}
