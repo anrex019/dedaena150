@@ -1,4 +1,4 @@
-import { Info, Music, Volume2, VolumeX } from 'lucide-react';
+import { Info, Volume2, VolumeX } from 'lucide-react';
 import { getState, patch, useStore } from '../lib/store';
 import { go } from '../lib/route';
 import { sound } from '../lib/sound';
@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function TopBar({ solid, onInfo }: Props) {
-  const { sfx, music } = useStore();
+  const { sfx } = useStore();
 
   return (
     <header className={styles.bar} data-topbar="" data-solid={solid}>
@@ -25,17 +25,6 @@ export function TopBar({ solid, onInfo }: Props) {
           }}
         >
           {sfx ? <Volume2 size={20} /> : <VolumeX size={20} />}
-        </button>
-        <button
-          type="button"
-          className={styles.icon}
-          aria-pressed={music}
-          aria-label={music ? 'მუსიკის გამორთვა' : 'მუსიკის ჩართვა'}
-          onClick={() => {
-            void sound.unlock().then(() => patch({ music: !getState().music }));
-          }}
-        >
-          <Music size={20} />
         </button>
       </div>
       <button type="button" className={styles.brand} onClick={() => go('home')}>

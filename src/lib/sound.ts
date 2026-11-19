@@ -2,37 +2,17 @@ type MusicRoom = 'home' | 'history' | 'words' | 'game' | 'future';
 
 type SfxName = 'click' | 'open' | 'jump' | 'collect' | 'hurt' | 'check' | 'win' | 'secret';
 
-/**
- * Original synthesized tones only. There is no recorded soundtrack in the project.
- */
+/** Short UI/game sound effects only. Background synthesized music has been removed. */
 class SoundBus {
   private ctx: AudioContext | null = null;
   private sfxGain: GainNode | null = null;
-  private musicGain: GainNode | null = null;
   private sfxOn = false;
-  private running = false;
-  private timer = 0;
-  private next = 0;
-  private step = 0;
-  private pad: OscillatorNode[] = [];
-  private room: MusicRoom = 'home';
-  // Original compositions; no third-party recordings or copyrighted melodies.
-  private readonly themes: Record<MusicRoom, { notes: number[]; root: number; beat: number; wave: OscillatorType; bass: number[]; volume: number }> = {
-    home: { notes: [0, 2, 5, 7, 5, 2, 0, -3], root: 293.66, beat: 0.46, wave: 'triangle', bass: [146.83, 220], volume: 0.045 },
-    history: { notes: [0, 2, 5, 7, 9, 7, 5, 2, 0, -3, 0, 2], root: 293.66, beat: 0.43, wave: 'triangle', bass: [146.83, 220], volume: 0.055 },
-    words: { notes: [0, 4, 7, 12, 7, 4, 2, 5, 9, 5, 2, 0], root: 261.63, beat: 0.65, wave: 'sine', bass: [130.81, 196], volume: 0.05 },
-    game: { notes: [0, 7, 5, 9, 7, 12, 9, 5, 2, 7, 5, 2], root: 329.63, beat: 0.24, wave: 'square', bass: [164.81, 246.94], volume: 0.027 },
-    future: { notes: [0, 0, 7, 5, 3, 0, 10, 7, 5, 3, 0, -2], root: 164.81, beat: 0.3, wave: 'sawtooth', bass: [82.41, 123.47], volume: 0.023 },
-  };
 
-  setRoom(room: MusicRoom) {
-    if (this.room === room) return;
-    this.room = room;
-    if (this.running) {
-      this.stopMusic();
-      this.startMusic();
-    }
-  }
+  // Kept for compatibility with existing navigation and music controls.
+  setRoom(_room: MusicRoom) {}
+  setMusic(_on: boolean) {}
+  beginCinematic() {}
+  attachVisibility(_musicEnabled: () => boolean) {}
 
   async unlock() {
     const ctx = this.ensure();
@@ -50,31 +30,12 @@ class SoundBus {
     master.connect(ctx.destination);
     this.sfxGain = ctx.createGain();
     this.sfxGain.connect(master);
-    this.musicGain = ctx.createGain();
-    this.musicGain.gain.value = 0.9;
-    this.musicGain.connect(master);
     this.ctx = ctx;
     return ctx;
   }
 
   setSfx(on: boolean) {
     this.sfxOn = on;
-  }
-
-  setMusic(on: boolean) {
-    if (!on) {
-      this.stopMusic();
-      return;
-    }
-    if (document.visibilityState === 'hidden') return;
-    this.startMusic();
-  }
-
-  /** A soft chord on the music bus. Does not restart the loop if it is already playing. */
-  beginCinematic() {
-    if (document.visibilityState === 'hidden') return;
-    this.startMusic();
-    this.swell();
   }
 
   play(name: SfxName) {
@@ -118,90 +79,6 @@ class SoundBus {
     osc.stop(time + dur + 0.02);
   }
 
-  private startMusic() {
-    if (this.running) return;
-    const ctx = this.ensure();
-    if (!ctx || !this.musicGain) return;
-    this.running = true;
-    this.themes[this.room].bass.forEach((freq, index) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      gain.gain.value = index === 0 ? 0.045 : 0.024;
-      osc.connect(gain);
-      gain.connect(this.musicGain!);
-      osc.start();
-      this.pad.push(osc);
-    });
-    this.next = ctx.currentTime + 0.08;
-    this.step = 0;
-    this.timer = window.setInterval(() => this.schedule(), 100);
-  }
-
-  private schedule() {
-    const ctx = this.ctx;
-    if (!ctx || !this.running || !this.musicGain) return;
-    const theme = this.themes[this.room];
-    while (this.next < ctx.currentTime + 0.3) {
-      const semi = theme.notes[this.step % theme.notes.length];
-      const freq = theme.root * 2 ** (semi / 12);
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = theme.wave;
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.0001, this.next);
-      gain.gain.exponentialRampToValueAtTime(theme.volume, this.next + 0.035);
-      gain.gain.exponentialRampToValueAtTime(0.0001, this.next + theme.beat * 0.92);
-      osc.connect(gain);
-      gain.connect(this.musicGain);
-      osc.start(this.next);
-      osc.stop(this.next + theme.beat);
-      this.next += theme.beat;
-      this.step += 1;
-    }
-  }
-
-  private swell() {
-    const ctx = this.ctx;
-    if (!ctx || !this.running || !this.musicGain || ctx.state !== 'running') return;
-    const now = ctx.currentTime + 0.05;
-    [196, 247, 294, 392].forEach((freq, index) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      const start = now + index * 0.18;
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(0.04, start + 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + 1.4);
-      osc.connect(gain);
-      gain.connect(this.musicGain!);
-      osc.start(start);
-      osc.stop(start + 1.45);
-    });
-  }
-
-  private stopMusic() {
-    if (this.timer) window.clearInterval(this.timer);
-    this.timer = 0;
-    this.pad.forEach((osc) => {
-      try {
-        osc.stop();
-      } catch {
-        /* oscillator already stopped */
-      }
-    });
-    this.pad = [];
-    this.running = false;
-  }
-
-  attachVisibility(musicEnabled: () => boolean) {
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) this.stopMusic();
-      else if (musicEnabled()) this.setMusic(true);
-    });
-  }
 }
 
 export const sound = new SoundBus();
