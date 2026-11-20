@@ -4,7 +4,7 @@
  * This is a review prototype, not a hand-curated or guaranteed set of photographs.
  */
 export const photoQueries: Record<string, string> = {
-  ia:'Viola odorata flower photograph', tit:'human finger hand photograph', mta:'Caucasus mountain landscape photograph',
+  ia:'Viola odorata flower photograph', tit:'human index finger pointing up isolated hand photo -spider -insect -animal', mta:'Caucasus mountain landscape photograph',
   mze:'Sun sky photograph', wigni:'open printed book photograph', ena:'Georgian alphabet text book photograph',
   deda:'mother child photograph', mama:'father child photograph', bebia:'grandmother portrait photograph',
   babua:'grandfather portrait photograph', da:'sisters children photograph', dzma:'brothers children photograph',
@@ -32,6 +32,7 @@ export const photoQueries: Record<string, string> = {
 // Teacher review: deliberately more specific searches for the 23 rejected images.
 // The Commons API can still return an imperfect match; these are review candidates.
 const corrections: Record<string, string> = {
+  tit: 'human index finger pointing upward isolated hand photograph -spider -arachnid',
   mze: 'sun solar disk NASA photograph',
   wigni: 'Deda Ena 1876 cover',
   ena: 'Albert Einstein sticks his tongue 1951',
@@ -86,6 +87,7 @@ export function findCommonsPhoto(id: string): Promise<CommonsPhoto | null> {
       };
       const pages = Object.values(data.query?.pages ?? {});
       const photos = pages.map((page) => ({ title: page.title ?? '', info: page.imageinfo?.[0] }))
+        .filter(({ title }) => id !== 'tit' || !/spider|arachnid|insect|tarantula|jumping spider|spinne|araignée/i.test(title))
         .filter(({ info }) =>
           info?.thumburl && info.descriptionurl &&
           (info.mime === 'image/jpeg' || info.mime === 'image/png' || info.mime === 'image/webp') &&
