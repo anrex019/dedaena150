@@ -99,7 +99,6 @@ export function Opening({ phase, reduced, onBegin, onFinish }: Props) {
 
       <div className={styles.stage}>
         {phase === 'welcome' && <div className={styles.schoolIdentity} aria-label="პროექტის წარმდგენი სკოლა">
-          <span className={styles.schoolEyebrow}>საგანმანათლებლო პროექტი · 1876–2026</span>
           <span className={styles.schoolDivider} aria-hidden="true">✦</span>
           <span className={styles.schoolName}>სსიპ — ოზურგეთის მუნიციპალიტეტის<br />დაბა ლაითურის საჯარო სკოლა</span>
         </div>}
