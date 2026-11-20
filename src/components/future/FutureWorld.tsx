@@ -459,10 +459,10 @@ export function FutureWorld({ reduced }: Props) {
             aria-labelledby="mission-title"
             tabIndex={-1}
           >
-            <p className={styles.kicker}>{students[missions.findIndex((item) => item.id === mission.id)]}</p>
+            <p className={styles.kicker}>{mission.id === 'keep' ? 'VIII კლასის მოსწავლეები' : students[missions.findIndex((item) => item.id === mission.id)]}</p>
             <h2 id="mission-title">{mission.title}</h2>
             <p>{mission.body}</p>
-            <p className={styles.note}>სახელი ჯერ ადგილს იკავებს და წარდგენამდე უნდა შეიცვალოს.</p>
+            {mission.id !== 'keep' && <p className={styles.note}>სახელი ჯერ ადგილს იკავებს და წარდგენამდე უნდა შეიცვალოს.</p>}
             <button type="button" onClick={() => setMissionId(null)}>დახურვა</button>
           </div>
         </div>
