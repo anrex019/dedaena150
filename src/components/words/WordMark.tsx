@@ -18,10 +18,15 @@ export function WordMark({ art, word, file, plain, eager, photoId }: Props) {
   useEffect(() => {
     let live = true;
     setPhoto(null);
-    if (photoId) void findCommonsPhoto(photoId).then((result) => { if (live) setPhoto(result); });
+    if (photoId && photoId !== 'tit') void findCommonsPhoto(photoId).then((result) => { if (live) setPhoto(result); });
     return () => { live = false; };
   }, [photoId]);
   const [failed, setFailed] = useState(false);
+  if (photoId === 'tit') {
+    return <span className={styles.mark}>
+      <img src={`${import.meta.env.BASE_URL}art/words/finger-upload.svg`} alt={word} width={300} height={400} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+    </span>;
+  }
   if (photo) {
     return <span className={styles.mark} aria-label={`${word} — ფოტო Wikimedia Commons-იდან`}>
       {eager ? (
