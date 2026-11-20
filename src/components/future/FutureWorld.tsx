@@ -19,7 +19,7 @@ const missions = [
   {
     id: 'keep',
     title: 'ენის შენარჩუნება',
-    body: 'ჩვენ, მერვეკლასელები, გვინდა, რომ ქართული სიტყვა 2126 წელსაც ცოცხალი იყოს. შენარჩუნება იმით იწყება, რომ დღესაც ქართულად ვწერთ და ვკითხულობთ.',
+    body: 'ჩვენ, დაბა ლაითურის საჯარო სკოლის VIII კლასის მოსწავლეები — ბეგი დიასამიძე, შაკო გოგიტიძე და გიორგი დუმბაძე — გვჯერა, რომ ქართული ენა ჩვენი ყველაზე ძვირფასი საგანძურია. გვსურს, 2126 წელსაც ისმოდეს ქართული სიტყვა, იკითხებოდეს ქართული წიგნი და მომავალმა თაობებმა სიყვარულით შეინარჩუნონ ჩვენი დედაენა.',
     Icon: Shield,
   },
   {
@@ -459,10 +459,10 @@ export function FutureWorld({ reduced }: Props) {
             aria-labelledby="mission-title"
             tabIndex={-1}
           >
-            <p className={styles.kicker}>{students[missions.findIndex((item) => item.id === mission.id)]}</p>
+            <p className={styles.kicker}>{mission.id === 'keep' ? 'VIII კლასის მოსწავლეები' : students[missions.findIndex((item) => item.id === mission.id)]}</p>
             <h2 id="mission-title">{mission.title}</h2>
             <p>{mission.body}</p>
-            <p className={styles.note}>სახელი ჯერ ადგილს იკავებს და წარდგენამდე უნდა შეიცვალოს.</p>
+            {mission.id !== 'keep' && <p className={styles.note}>სახელი ჯერ ადგილს იკავებს და წარდგენამდე უნდა შეიცვალოს.</p>}
             <button type="button" onClick={() => setMissionId(null)}>დახურვა</button>
           </div>
         </div>
