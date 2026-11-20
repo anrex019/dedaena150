@@ -3,7 +3,7 @@
  * before the competition. Do not invent names in the interface.
  */
 export const students = [
-  'მოსწავლე 1',
+  'VIII კლასის მოსწავლეები',
   'მოსწავლე 2',
   'მოსწავლე 3',
   'მოსწავლე 4',
