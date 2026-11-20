@@ -10,8 +10,10 @@
 
 .frame {
   position: relative;
-  width: min(100vw, calc(100dvh * 16 / 9));
+  /* Cover the viewport without distorting the artwork or door hit targets. */
+  width: max(100vw, calc(100dvh * 16 / 9));
   aspect-ratio: 16 / 9;
+  flex: none;
   container-type: inline-size;
 }
 
@@ -22,7 +24,7 @@
   width: 100%;
   height: 100%;
   max-width: none;
-  object-fit: fill;
+  object-fit: cover;
   pointer-events: none;
   user-select: none;
 }
